@@ -3,6 +3,7 @@
     // Una etiqueta que se muestra encima de la foto (Hiking, Café, Vista...)
     public class EtiquetaViewModel
     {
+        public int EtiquetaId { get; set; }   // para filtrar el mapa y guardar etiquetas
         public string Nombre { get; set; } = "";
         public string Icono { get; set; } = "";   // Clase de Tabler, ej: "ti-mountain"
     }

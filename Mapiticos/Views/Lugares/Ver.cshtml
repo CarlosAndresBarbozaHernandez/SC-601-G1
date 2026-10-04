@@ -1,0 +1,175 @@
+﻿@using System.Globalization
+@model Mapiticos.Models.ViewModels.LugarDetalleViewModel
+@{
+    ViewData["Title"] = Model.Nombre;
+    var cultura = new CultureInfo("es-CR");
+}
+
+<div class="lugar">
+    @Html.AntiForgeryToken()
+
+    <header class="encabezado">
+        <a asp-controller="Mapa" asp-action="Index" class="boton-icono" aria-label="Volver al mapa">
+            <i class="ti ti-arrow-left"></i>
+        </a>
+        <h1 class="lugar-titulo">@Model.Nombre</h1>
+        <button type="button" id="btn-favorito"
+                class="boton-icono @(Model.EsFavorito ? "activo" : "")"
+                data-lugar="@Model.LugarId"
+                data-url="@Url.Action("Favorito", "Lugares")"
+                aria-label="Guardar en favoritos"
+                aria-pressed="@(Model.EsFavorito ? "true" : "false")">
+            <i class="ti ti-star"></i>
+        </button>
+    </header>
+
+    <section class="lugar-info">
+        <p class="lugar-provincia"><i class="ti ti-map-pin"></i>@Model.Provincia</p>
+
+        @if (Model.Etiquetas.Any())
+        {
+            <ul class="lugar-etiquetas" aria-label="Etiquetas del lugar">
+                @foreach (var e in Model.Etiquetas)
+                {
+                    <li><i class="ti @e.Icono"></i>@e.Nombre</li>
+                }
+            </ul>
+        }
+
+        <p class="lugar-favoritos">
+            <span id="cantidad-favoritos">@Model.CantidadFavoritos</span> en favoritos
+        </p>
+    </section>
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <p class="mensaje-exito lugar-mensaje" role="status">
+            <i class="ti ti-circle-check" aria-hidden="true"></i>@mensaje
+        </p>
+    }
+
+    <div class="lugar-agregar">
+        <a asp-action="Agregar" asp-route-id="@Model.LugarId" class="boton-principal boton-pequeno">
+            <i class="ti ti-plus"></i>Agregar mi aventura
+        </a>
+    </div>
+
+    <nav class="lugar-pestanas" aria-label="Filtrar aventuras">
+        <a asp-action="Ver" asp-route-id="@Model.LugarId" asp-route-filtro="todas"
+           class="@(Model.Filtro == "todas" ? "activo" : "")"
+           aria-current="@(Model.Filtro == "todas" ? "page" : null)">Todas</a>
+        <a asp-action="Ver" asp-route-id="@Model.LugarId" asp-route-filtro="amigos"
+           class="@(Model.Filtro == "amigos" ? "activo" : "")"
+           aria-current="@(Model.Filtro == "amigos" ? "page" : null)">Amigos</a>
+    </nav>
+
+    @if (!Model.Aventuras.Any())
+    {
+        <div class="vacio">
+            <p>
+                @(Model.Filtro == "amigos"
+                            ? "Ninguna de las personas que seguís ha publicado aquí todavía."
+                            : "Todavía no hay aventuras para ver en este lugar.")
+        </p>
+    </div>
+        }
+
+    @foreach (var a in Model.Aventuras)
+    {
+        <article class="publicacion">
+            <div class="publicacion-encabezado">
+                <div class="avatar" aria-hidden="true">
+                    @if (!string.IsNullOrEmpty(a.AvatarUrl))
+                    {
+                        <img src="@a.AvatarUrl" alt="" />
+                    }
+                    else
+                    {
+                        @a.NombreMostrar.Substring(0, 1).ToUpper()
+                    }
+                </div>
+                <div class="publicacion-autor">
+                    <strong>@a.NombreMostrar</strong>
+                    <span class="publicacion-lugar">@("@" + a.NombreUsuario)</span>
+                </div>
+            </div>
+
+            @if (a.Fotos.Any())
+            {
+                @* Si hay varias fotos, se deslizan de lado *@
+                <div class="publicacion-foto lugar-fotos">
+                    @for (var i = 0; i < a.Fotos.Count; i++)
+                    {
+                        <figure class="lugar-foto">
+                            <img src="@a.Fotos[i].Url" alt="Foto @(i + 1) de @a.NombreUsuario en @Model.Nombre" loading="lazy" />
+                            @if (a.EsMia)
+                            {
+                                <button type="button" class="btn-eliminar-foto"
+                                        data-foto="@a.Fotos[i].FotoId"
+                                        data-url="@Url.Action("EliminarFoto", "Lugares")"
+                                        aria-label="Borrar foto @(i + 1)">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            }
+                            @if (a.Fotos.Count > 1)
+                            {
+                                <span class="lugar-foto-numero">@(i + 1)/@a.Fotos.Count</span>
+                            }
+                        </figure>
+                    }
+                </div>
+            }
+
+            @if (a.Etiquetas.Any())
+            {
+                <ul class="lugar-etiquetas" aria-label="Etiquetas de esta aventura">
+                    @foreach (var e in a.Etiquetas)
+                    {
+                        <li><i class="ti @e.Icono"></i>@e.Nombre</li>
+                    }
+                </ul>
+            }
+
+            <div class="publicacion-acciones">
+                <button type="button"
+                        class="accion btn-like @(a.MeGusta ? "activo" : "")"
+                        data-aventura="@a.AventuraId"
+                        data-url="@Url.Action("Like", "Lugares")"
+                        aria-label="Me gusta"
+                        aria-pressed="@(a.MeGusta ? "true" : "false")">
+                    <i class="ti ti-heart"></i>
+                </button>
+                <button type="button" class="accion" aria-label="Comentarios">
+                    <i class="ti ti-message-circle"></i>
+                </button>
+
+                @if (a.EsMia && a.Fotos.Count < 5)
+                {
+                    <span class="espaciador"></span>
+                    @* El label abre el selector de archivos; el input está escondido *@
+                    <label class="accion accion-texto agregar-fotos">
+                        <i class="ti ti-photo-plus"></i>Agregar fotos
+                        <input type="file" class="input-fotos" hidden multiple
+                               accept="image/jpeg,image/png,image/webp"
+                               data-aventura="@a.AventuraId"
+                               data-disponibles="@(5 - a.Fotos.Count)"
+                               data-url="@Url.Action("Fotos", "Lugares")" />
+                    </label>
+                }
+            </div>
+
+            <div class="publicacion-texto">
+                <strong><span class="cantidad-likes">@a.CantidadLikes</span> me gusta</strong>
+                @if (!string.IsNullOrEmpty(a.Descripcion))
+                {
+                    <p><strong>@a.NombreUsuario</strong> @a.Descripcion</p>
+                }
+                <span class="tiempo">@a.FechaPublicacion.ToString("d 'de' MMMM, yyyy", cultura)</span>
+            </div>
+        </article>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/lugar.js" asp-append-version="true"></script>
+}

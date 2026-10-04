@@ -36,7 +36,7 @@
             temporizador = setTimeout(async function () {
                 const numero = ++ultimaConsulta;
                 try {
-                    const urlBase = campo.dataset.url || '/Perfil/UsuarioDisponible';
+                    const urlBase = campo.dataset.url || '/Cuenta/UsuarioDisponible';
                     const respuesta = await fetch(urlBase + '?nombre=' + encodeURIComponent(limpio));
                     const datos = await respuesta.json();
                     if (numero !== ultimaConsulta) return; // llegó una respuesta vieja, se ignora

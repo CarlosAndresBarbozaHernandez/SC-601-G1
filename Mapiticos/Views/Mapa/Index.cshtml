@@ -1,0 +1,98 @@
+﻿@model Mapiticos.Models.ViewModels.MapaViewModel
+@{
+    ViewData["Title"] = "Mapa";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+}
+
+<div class="mapa-pagina">
+    @* Leaflet dibuja el mapa aquí. Las URLs se pasan por data-* porque mapa.js no puede usar Razor *@
+    <div id="mapa" aria-label="Mapa de aventuras"
+         data-puntos="@Url.Action("Puntos", "Mapa")"
+         data-crear="@Url.Action("Crear", "Mapa")"
+         data-ver-lugar="@Url.Action("Ver", "Lugares")"
+         data-favorito="@Url.Action("Favorito", "Lugares")"
+         data-agregar="@Url.Action("Agregar", "Lugares")"
+         data-fotos="@Url.Action("Fotos", "Lugares")"
+         data-lugar="@Model.LugarId"></div>
+
+    <ul class="mapa-filtros" aria-label="Filtrar por etiqueta">
+        <li><button type="button" class="boton-chip activo" data-etiqueta="0">Todas</button></li>
+        @foreach (var e in Model.Etiquetas)
+        {
+            <li><button type="button" class="boton-chip" data-etiqueta="@e.EtiquetaId"><i class="ti @e.Icono"></i>@e.Nombre</button></li>
+        }
+    </ul>
+
+    <button type="button" id="btn-agregar" class="mapa-agregar" aria-label="Agregar punto">
+        <i class="ti ti-plus"></i>
+    </button>
+    <p id="mapa-ayuda" class="mapa-ayuda" hidden>Tocá el mapa donde queda tu aventura</p>
+
+    <form id="form-punto" class="mapa-panel formulario" hidden>
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="latitud" />
+        <input type="hidden" name="longitud" />
+
+        <div class="campo">
+            <label for="titulo">Nombre del lugar</label>
+            <input id="titulo" name="titulo" maxlength="100" required />
+        </div>
+
+        <div class="campo">
+            <label for="provinciaId">Provincia</label>
+            <select id="provinciaId" name="provinciaId" required>
+                <option value="">Elegí una provincia</option>
+                @foreach (var p in Model.Provincias)
+                {
+                    <option value="@p.ProvinciaId">@p.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" maxlength="1000"></textarea>
+        </div>
+
+        <div class="campo">
+            <label for="fotos">Fotos</label>
+            <input id="fotos" name="fotos" type="file" multiple
+                   accept="image/jpeg,image/png,image/webp" />
+            <p class="campo-ayuda">Hasta 5 fotos, de máximo 5 MB cada una.</p>
+        </div>
+
+        <fieldset class="campo-grupo">
+            <legend>Etiquetas</legend>
+            <div class="mapa-etiquetas">
+                @foreach (var e in Model.Etiquetas)
+                {
+                    <label class="mapa-etiqueta">
+                        <input type="checkbox" name="etiqueta" value="@e.EtiquetaId" />
+                        <i class="ti @e.Icono"></i>@e.Nombre
+                    </label>
+                }
+            </div>
+        </fieldset>
+
+        <label class="mapa-compartir">
+            <input type="checkbox" name="esPublica" checked /> Compartir con otras personas
+        </label>
+
+        <p id="mapa-error" class="mapa-error" role="alert" hidden></p>
+
+        <div class="formulario-acciones">
+            <button type="button" id="btn-cancelar" class="boton-secundario boton-pequeno">Cancelar</button>
+            <button type="submit" class="boton-principal boton-pequeno">Guardar</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="~/js/mapa.js" asp-append-version="true"></script>
+}

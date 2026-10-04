@@ -1,0 +1,72 @@
+﻿@model Mapiticos.Models.ViewModels.AgregarAventuraViewModel
+@{
+    ViewData["Title"] = "Agregar aventura";
+}
+
+<div class="lugar">
+    <header class="encabezado">
+        <a asp-action="Ver" asp-route-id="@Model.LugarId" class="boton-icono" aria-label="Volver al lugar">
+            <i class="ti ti-arrow-left"></i>
+        </a>
+        <h1 class="lugar-titulo">Agregar aventura</h1>
+        <span class="boton-icono-espacio" aria-hidden="true"></span>
+    </header>
+
+    <section class="lugar-info">
+        <h2 class="agregar-nombre">@Model.NombreLugar</h2>
+        <p class="lugar-provincia"><i class="ti ti-map-pin"></i>@Model.Provincia</p>
+
+        @if (Model.EtiquetasLugar.Any())
+        {
+            <ul class="lugar-etiquetas" aria-label="Etiquetas del lugar">
+                @foreach (var e in Model.EtiquetasLugar)
+                {
+                    <li><i class="ti @e.Icono"></i>@e.Nombre</li>
+                }
+            </ul>
+        }
+    </section>
+
+    <form asp-action="Agregar" method="post" enctype="multipart/form-data" class="formulario agregar-form">
+        <input type="hidden" asp-for="LugarId" />
+
+        <div class="campo">
+            <label asp-for="Descripcion"></label>
+            <textarea asp-for="Descripcion" maxlength="1000" rows="4"
+                      placeholder="Contá qué hiciste, qué recomendás..."></textarea>
+            <span asp-validation-for="Descripcion" class="error"></span>
+        </div>
+
+        <div class="campo">
+            <label for="Fotos">Fotos</label>
+            <input type="file" id="Fotos" name="Fotos" multiple
+                   accept="image/jpeg,image/png,image/webp" />
+            <p class="campo-ayuda">Hasta 5 fotos, de máximo 5 MB cada una.</p>
+            <span asp-validation-for="Fotos" class="error"></span>
+        </div>
+
+        <fieldset class="campo-grupo">
+            <legend>Tus etiquetas</legend>
+            <p class="campo-ayuda">Salen solo en tu aventura. Las del lugar no cambian.</p>
+            <div class="mapa-etiquetas">
+                @foreach (var e in Model.Catalogo)
+                {
+                    <label class="mapa-etiqueta">
+                        <input type="checkbox" name="EtiquetaIds" value="@e.EtiquetaId"
+                               checked="@Model.EtiquetaIds.Contains(e.EtiquetaId)" />
+                        <i class="ti @e.Icono"></i>@e.Nombre
+                    </label>
+                }
+            </div>
+        </fieldset>
+
+        <label class="mapa-compartir">
+            <input asp-for="EsPublica" /> Compartir con otras personas
+        </label>
+
+        <div class="formulario-acciones">
+            <a asp-action="Ver" asp-route-id="@Model.LugarId" class="boton-secundario boton-pequeno">Cancelar</a>
+            <button type="submit" class="boton-principal boton-pequeno">Publicar</button>
+        </div>
+    </form>
+</div>

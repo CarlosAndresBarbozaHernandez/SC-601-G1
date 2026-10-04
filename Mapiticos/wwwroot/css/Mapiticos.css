@@ -1577,3 +1577,490 @@ button {
         margin: 0 16px 8px 32px;
     }
 }
+
+/* ===== Mapa ===== */
+.mapa-pagina {
+    position: relative;
+    height: calc(100vh - 96px); /* celular: deja espacio al menú de abajo */
+}
+
+#mapa {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.mapa-filtros {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 500;
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+}
+
+    .mapa-filtros .boton-chip {
+        border: 0;
+        background: var(--blanco);
+        color: var(--bosque);
+        font-family: inherit;
+        box-shadow: 0 1px 4px rgba(34, 57, 43, 0.25);
+    }
+
+        .mapa-filtros .boton-chip.activo {
+            background: var(--bosque);
+            color: var(--blanco);
+        }
+
+.mapa-agregar {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 500;
+    width: 56px;
+    height: 56px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--bosque);
+    color: var(--blanco);
+    font-size: 26px;
+    box-shadow: 0 2px 8px rgba(34, 57, 43, 0.35);
+}
+
+    .mapa-agregar:hover {
+        background: var(--musgo);
+    }
+
+.mapa-ayuda {
+    position: absolute;
+    left: 50%;
+    bottom: 84px;
+    transform: translateX(-50%);
+    z-index: 500;
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 16px;
+    background: var(--bosque);
+    color: var(--blanco);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* El formulario sube desde abajo, encima del mapa */
+.mapa-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 600;
+    max-height: 75%;
+    overflow-y: auto;
+    padding: 20px 16px;
+    background: var(--blanco);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 16px rgba(34, 57, 43, 0.2);
+}
+
+    .mapa-panel[hidden], .mapa-ayuda[hidden] {
+        display: none; /* .formulario usa display:flex y taparía el atributo hidden */
+    }
+
+.campo select {
+    height: 48px;
+    border: 1.5px solid #C7D3B2;
+    border-radius: 14px;
+    padding: 0 14px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--bosque);
+    background: var(--neblina);
+}
+
+.mapa-etiquetas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mapa-etiqueta, .mapa-compartir {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mapa-error {
+    margin: 0;
+    color: #A33A3A;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@media (min-width: 900px) {
+    .mapa-pagina {
+        height: calc(100vh - 32px); /* escritorio: el menú está a la izquierda */
+    }
+
+    .mapa-panel {
+        left: auto;
+        width: 380px;
+        right: 16px;
+        bottom: 16px;
+        border-radius: 20px;
+    }
+}
+/* ===== Ver lugar ===== */
+.lugar {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.lugar-titulo {
+    flex: 1;
+    margin: 0 8px;
+    font-family: var(--fuente-titulos);
+    font-size: 20px;
+    font-weight: 800;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.boton-icono.activo {
+    color: var(--guaria);
+}
+
+.lugar-info {
+    padding: 0 16px 12px;
+}
+
+.lugar-provincia {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 10px;
+    color: var(--texto-suave);
+    font-weight: 600;
+}
+
+.lugar-favoritos {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: var(--texto-suave);
+}
+
+.lugar-etiquetas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+    .lugar-etiquetas li {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 28px;
+        padding: 0 10px;
+        border-radius: 14px;
+        background: var(--salvia-clara);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+.publicacion > .lugar-etiquetas {
+    padding: 10px 16px 0;
+}
+
+/* Pestañas Todas / Amigos */
+.lugar-pestanas {
+    display: flex;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--borde);
+}
+
+    .lugar-pestanas a {
+        flex: 1;
+        padding: 12px 0;
+        text-align: center;
+        font-weight: 700;
+        color: var(--texto-suave);
+        border-bottom: 3px solid transparent;
+    }
+
+        .lugar-pestanas a.activo {
+            color: var(--bosque);
+            border-bottom-color: var(--bosque);
+        }
+
+/* Varias fotos: se deslizan de lado */
+.lugar-fotos {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+
+    .lugar-fotos img {
+        flex: 0 0 100%;
+        scroll-snap-align: start;
+    }
+/* ===== Popup del mapa: Ver aventuras + favorito ===== */
+.popup-acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.popup-favorito {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 24px;
+    color: var(--bosque);
+}
+
+    .popup-favorito.activo {
+        color: var(--guaria);
+    }
+/* ===== Ver lugar ===== */
+.lugar {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.lugar-titulo {
+    flex: 1;
+    margin: 0 8px;
+    font-family: var(--fuente-titulos);
+    font-size: 20px;
+    font-weight: 800;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.boton-icono.activo {
+    color: var(--guaria);
+}
+
+.lugar-info {
+    padding: 0 16px 12px;
+}
+
+.lugar-provincia {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 10px;
+    color: var(--texto-suave);
+    font-weight: 600;
+}
+
+.lugar-favoritos {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: var(--texto-suave);
+}
+
+.lugar-etiquetas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+    .lugar-etiquetas li {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 28px;
+        padding: 0 10px;
+        border-radius: 14px;
+        background: var(--salvia-clara);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+.publicacion > .lugar-etiquetas {
+    padding: 10px 16px 0;
+}
+
+/* Pestañas Todas / Amigos */
+.lugar-pestanas {
+    display: flex;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--borde);
+}
+
+    .lugar-pestanas a {
+        flex: 1;
+        padding: 12px 0;
+        text-align: center;
+        font-weight: 700;
+        color: var(--texto-suave);
+        border-bottom: 3px solid transparent;
+    }
+
+        .lugar-pestanas a.activo {
+            color: var(--bosque);
+            border-bottom-color: var(--bosque);
+        }
+
+/* Varias fotos: se deslizan de lado */
+.lugar-fotos {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+
+    .lugar-fotos img {
+        flex: 0 0 100%;
+        scroll-snap-align: start;
+    }
+
+/* ===== Paso 5b: favoritos visibles + agregar aventura ===== */
+
+/* Estrella marcada = botón verde con estrella blanca */
+.boton-icono.activo {
+    background: var(--bosque);
+    border-color: var(--bosque);
+    color: var(--blanco);
+}
+
+/* Botones dentro del popup del mapa */
+.leaflet-popup-content a.boton-chip {
+    color: var(--bosque);
+}
+
+.popup-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.popup-favorito {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #C7D3B2;
+    background: var(--blanco);
+    color: var(--bosque);
+    font-size: 18px;
+}
+
+    .popup-favorito.activo {
+        background: var(--bosque);
+        border-color: var(--bosque);
+        color: var(--blanco);
+    }
+
+/* Pantalla del lugar */
+.lugar-agregar {
+    padding: 0 16px 12px;
+}
+
+    .lugar-agregar .boton-principal {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+.lugar-mensaje {
+    margin: 0 16px 12px;
+}
+
+/* Formulario "Agregar aventura" */
+.boton-icono-espacio {
+    width: 42px;
+    height: 42px;
+}
+
+.agregar-nombre {
+    margin: 0 0 6px;
+    font-family: var(--fuente-titulos);
+    font-size: 22px;
+}
+
+.agregar-form {
+    padding: 0 16px 24px;
+}
+/* ===== Botón "Agregar fotos" en mis aventuras ===== */
+.agregar-fotos {
+    cursor: pointer;
+}
+
+    .agregar-fotos.subiendo {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+/* ===== Cada foto con su botón de borrar ===== */
+.lugar-foto {
+    position: relative;
+    flex: 0 0 100%;
+    margin: 0;
+    scroll-snap-align: start;
+}
+
+    .lugar-foto img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+.btn-eliminar-foto {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(34, 57, 43, 0.8);
+    color: var(--blanco);
+    font-size: 18px;
+}
+
+    .btn-eliminar-foto:hover {
+        background: var(--guaria);
+    }
+
+.lugar-foto-numero {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(34, 57, 43, 0.8);
+    color: var(--blanco);
+    font-size: 12px;
+    font-weight: 700;
+}

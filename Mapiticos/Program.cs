@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Mapiticos.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Mapiticos.Filtros;
 using Mapiticos.Repositorios;
+using Mapiticos.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,16 +27,27 @@ builder.Services.AddControllersWithViews(options =>
         .RequireAuthenticatedUser()
         .Build();
     options.Filters.Add(new AuthorizeFilter(politica));
+
+    // Quien inició sesión pero todavía no eligió su @usuario va a Perfil/ElegirUsuario
+    options.Filters.Add<RequiereNombreUsuarioFiltro>();
 });
 
 // Repositorios (acceso a datos con ADO.NET)
-builder.Services.AddScoped<IPerfilRepositorio, PerfilRepositorio>(); 
+builder.Services.AddScoped<IPerfilRepositorio, PerfilRepositorio>();
+builder.Services.AddScoped<IMapaRepositorio, MapaRepositorio>();
+builder.Services.AddScoped<ILugarRepositorio, LugarRepositorio>();
+
+// Servicios
+builder.Services.AddScoped<IAlmacenFotos, AlmacenFotosLocal>();
 
 var app = builder.Build();
 
-// Crea los roles "Usuario" y "Admin" si todavía no existen
+// Crea la BD y las tablas de Identity si no existen, y luego los roles "Usuario" y "Admin"
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+
     await InicializadorRoles.CrearRolesAsync(scope.ServiceProvider);
 }
 

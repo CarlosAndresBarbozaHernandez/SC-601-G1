@@ -22,5 +22,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.30" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
   </ItemGroup>
-
+	
+	
+	<!-- Las fotos que suben los usuarios no son parte del código:
+       Visual Studio no debe vigilarlas ni reiniciar la app cuando cambian -->
+	<ItemGroup>
+		<Content Remove="wwwroot\uploads\**" />
+		<None Remove="wwwroot\uploads\**" />
+		<Watch Remove="wwwroot\uploads\**" />
+	</ItemGroup>
 </Project>
