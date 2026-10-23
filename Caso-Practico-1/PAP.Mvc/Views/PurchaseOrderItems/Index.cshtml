@@ -1,0 +1,300 @@
+﻿@model IEnumerable<PAP.DataAccess.PurchaseOrderItem>
+
+@{
+    ViewBag.Title = "Purchase Order Items";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Purchase Order Items</h2>
+
+    @Html.ActionLink(
+        "Add Purchase Order Item",
+        "Index",
+        "PurchaseOrderItems",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.PurchaseOrderItemDetail != null)
+{
+    var detail = (PAP.DataAccess.PurchaseOrderItem)ViewBag.PurchaseOrderItemDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Purchase Order Item Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Purchase Order ID:</strong> @detail.PurchaseOrderId</p>
+            <p><strong>Book ID:</strong> @detail.BookId</p>
+            <p><strong>Quantity:</strong> @detail.Quantity</p>
+            <p><strong>Unit Cost:</strong> @detail.UnitCost</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "PurchaseOrderItems",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Purchase Order Item</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "PurchaseOrderItems", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Purchase Order ID</label>
+
+                    <input type="number"
+                           name="PurchaseOrderId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Book ID</label>
+
+                    <input type="number"
+                           name="BookId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+
+                    <input type="number"
+                           name="Quantity"
+                           min="1"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Unit Cost</label>
+
+                    <input type="number"
+                           step="0.01"
+                           name="UnitCost"
+                           class="form-control"
+                           required />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "PurchaseOrderItems",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.PurchaseOrderItemEdit != null)
+{
+    var edit = (PAP.DataAccess.PurchaseOrderItem)ViewBag.PurchaseOrderItemEdit;
+
+    <h4>Edit Purchase Order Item</h4>
+
+    using (Html.BeginForm("Edit", "PurchaseOrderItems", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <div class="form-group">
+            <label>Purchase Order ID</label>
+
+            <input type="number"
+                   name="PurchaseOrderId"
+                   value="@edit.PurchaseOrderId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Book ID</label>
+
+            <input type="number"
+                   name="BookId"
+                   value="@edit.BookId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Quantity</label>
+
+            <input type="number"
+                   name="Quantity"
+                   value="@edit.Quantity"
+                   min="1"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Unit Cost</label>
+
+            <input type="number"
+                   step="0.01"
+                   name="UnitCost"
+                   value="@edit.UnitCost"
+                   class="form-control"
+                   required />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "PurchaseOrderItems",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.PurchaseOrderItemDelete != null)
+{
+    var delete =
+        (PAP.DataAccess.PurchaseOrderItem)ViewBag.PurchaseOrderItemDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>
+                Are you sure you want to delete this purchase order item?
+            </p>
+
+            <p><strong>ID:</strong> @delete.Id</p>
+            <p><strong>Purchase Order ID:</strong> @delete.PurchaseOrderId</p>
+            <p><strong>Book ID:</strong> @delete.BookId</p>
+            <p><strong>Quantity:</strong> @delete.Quantity</p>
+
+            @using (Html.BeginForm("Delete", "PurchaseOrderItems", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            <br />
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "PurchaseOrderItems",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Purchase Order Item List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Purchase Order ID</th>
+        <th>Book ID</th>
+        <th>Quantity</th>
+        <th>Unit Cost</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.PurchaseOrderId</td>
+            <td>@item.BookId</td>
+            <td>@item.Quantity</td>
+            <td>@item.UnitCost</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "PurchaseOrderItems",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "PurchaseOrderItems",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "PurchaseOrderItems",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

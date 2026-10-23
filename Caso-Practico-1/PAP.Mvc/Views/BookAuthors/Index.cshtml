@@ -1,0 +1,218 @@
+﻿@model IEnumerable<PAP.DataAccess.Author>
+
+@{
+    ViewBag.Title = "Book Authors";
+}
+
+<h2>Book Authors</h2>
+
+<h4>Select Book</h4>
+
+@using (Html.BeginForm("Index", "BookAuthors", FormMethod.Get))
+{
+    <div class="form-group">
+
+        <label>Book</label>
+
+        <select name="bookId"
+                class="form-control"
+                required>
+
+            <option value="">Select a book</option>
+
+            @foreach (var book in ViewBag.Books)
+            {
+                if (ViewBag.SelectedBookId != null &&
+                    book.Id == (int)ViewBag.SelectedBookId)
+                {
+                    <option value="@book.Id" selected>
+                        @book.Id - @book.Title
+                    </option>
+                }
+                else
+                {
+                    <option value="@book.Id">
+                        @book.Id - @book.Title
+                    </option>
+                }
+            }
+
+        </select>
+
+    </div>
+
+    <br />
+
+    <button type="submit"
+            class="btn btn-primary">
+        View Authors
+    </button>
+}
+
+<hr />
+
+
+@if (ViewBag.SelectedBook != null)
+{
+    var selectedBook =
+        (PAP.DataAccess.Book)ViewBag.SelectedBook;
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div>
+            <h3>Authors for: @selectedBook.Title</h3>
+
+            <p>
+                <strong>Book ID:</strong>
+                @selectedBook.Id
+            </p>
+        </div>
+
+        @Html.ActionLink(
+            "Add Author",
+            "Index",
+            "BookAuthors",
+            new
+            {
+                bookId = selectedBook.Id,
+                create = true
+            },
+            new { @class = "btn btn-primary" }
+        )
+
+    </div>
+
+
+    if (ViewBag.ShowCreate == true)
+    {
+        <div class="panel panel-default">
+
+            <div class="panel-heading">
+                <strong>Add Author to Book</strong>
+            </div>
+
+            <div class="panel-body">
+
+                using (Html.BeginForm(
+                "Add",
+                "BookAuthors",
+                FormMethod.Post))
+                {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="bookId"
+                       value="@selectedBook.Id" />
+
+                <div class="form-group">
+
+                    <label>Author</label>
+
+                    <select name="authorId"
+                            class="form-control"
+                            required>
+
+                        <option value="">
+                            Select an author
+                        </option>
+
+                        @foreach (var author in ViewBag.AllAuthors)
+                        {
+                            <option value="@author.Id">
+                                @author.Id -
+                                @author.FirstName
+                                @author.LastName
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-success">
+                    Add Author
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "BookAuthors",
+                    new { bookId = selectedBook.Id },
+                    new { @class = "btn btn-default" }
+                )
+                }
+
+            </div>
+
+        </div>
+
+        <hr />
+    }
+
+
+    <h4>Authors assigned to this Book</h4>
+
+    if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            This book does not have authors assigned.
+        </div>
+    }
+    else
+    {
+        <table class="table">
+
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Country</th>
+                <th>Action</th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+
+                    <td>@item.Id</td>
+
+                    <td>@item.FirstName</td>
+
+                    <td>@item.LastName</td>
+
+                    <td>@item.Country</td>
+
+                    <td>
+
+                        @using (Html.BeginForm(
+                            "Delete",
+                            "BookAuthors",
+                            FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="bookId"
+                                   value="@selectedBook.Id" />
+
+                            <input type="hidden"
+                                   name="authorId"
+                                   value="@item.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-danger btn-sm">
+                                Delete
+                            </button>
+                        }
+
+                    </td>
+
+                </tr>
+            }
+
+        </table>
+    }
+}

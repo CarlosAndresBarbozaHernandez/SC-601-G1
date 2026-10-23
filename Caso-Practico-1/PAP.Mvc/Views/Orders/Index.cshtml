@@ -1,0 +1,370 @@
+﻿@model IEnumerable<PAP.DataAccess.Order>
+
+@{
+    ViewBag.Title = "Orders";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Orders</h2>
+
+    @Html.ActionLink(
+        "Add Order",
+        "Index",
+        "Orders",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.OrderDetail != null)
+{
+    var detail = (PAP.DataAccess.Order)ViewBag.OrderDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Order Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Customer ID:</strong> @detail.CustomerId</p>
+            <p><strong>Shipping Address ID:</strong> @detail.ShippingAddressId</p>
+            <p><strong>Order Date:</strong> @detail.OrderDate</p>
+            <p><strong>Status:</strong> @detail.Status</p>
+            <p><strong>Subtotal:</strong> @detail.Subtotal</p>
+            <p><strong>Tax Amount:</strong> @detail.TaxAmount</p>
+            <p><strong>Shipping Cost:</strong> @detail.ShippingCost</p>
+            <p><strong>Total:</strong> @detail.Total</p>
+            <p><strong>Notes:</strong> @detail.Notes</p>
+            <p><strong>Updated At:</strong> @detail.UpdatedAt</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Orders",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Order</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Orders", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Customer ID</label>
+                    <input type="number"
+                           name="CustomerId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Shipping Address ID</label>
+                    <input type="number"
+                           name="ShippingAddressId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <input type="text"
+                           name="Status"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Subtotal</label>
+                    <input type="number"
+                           step="0.01"
+                           name="Subtotal"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Tax Amount</label>
+                    <input type="number"
+                           step="0.01"
+                           name="TaxAmount"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Shipping Cost</label>
+                    <input type="number"
+                           step="0.01"
+                           name="ShippingCost"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Total</label>
+                    <input type="number"
+                           step="0.01"
+                           name="Total"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text"
+                           name="Notes"
+                           class="form-control" />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Orders",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.OrderEdit != null)
+{
+    var edit = (PAP.DataAccess.Order)ViewBag.OrderEdit;
+
+    <h4>Edit Order</h4>
+
+    using (Html.BeginForm("Edit", "Orders", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="OrderDate"
+               value="@edit.OrderDate" />
+
+        <div class="form-group">
+            <label>Customer ID</label>
+            <input type="number"
+                   name="CustomerId"
+                   value="@edit.CustomerId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Shipping Address ID</label>
+            <input type="number"
+                   name="ShippingAddressId"
+                   value="@edit.ShippingAddressId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+            <input type="text"
+                   name="Status"
+                   value="@edit.Status"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Subtotal</label>
+            <input type="number"
+                   step="0.01"
+                   name="Subtotal"
+                   value="@edit.Subtotal"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Tax Amount</label>
+            <input type="number"
+                   step="0.01"
+                   name="TaxAmount"
+                   value="@edit.TaxAmount"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Shipping Cost</label>
+            <input type="number"
+                   step="0.01"
+                   name="ShippingCost"
+                   value="@edit.ShippingCost"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Total</label>
+            <input type="number"
+                   step="0.01"
+                   name="Total"
+                   value="@edit.Total"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Notes</label>
+            <input type="text"
+                   name="Notes"
+                   value="@edit.Notes"
+                   class="form-control" />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Orders",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.OrderDelete != null)
+{
+    var delete = (PAP.DataAccess.Order)ViewBag.OrderDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this order?</p>
+
+            <p><strong>Order ID:</strong> @delete.Id</p>
+            <p><strong>Customer ID:</strong> @delete.CustomerId</p>
+            <p><strong>Total:</strong> @delete.Total</p>
+
+            @using (Html.BeginForm("Delete", "Orders", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Orders",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Order List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Customer ID</th>
+        <th>Shipping Address ID</th>
+        <th>Order Date</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th>Updated At</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.CustomerId</td>
+            <td>@item.ShippingAddressId</td>
+            <td>@item.OrderDate</td>
+            <td>@item.Status</td>
+            <td>@item.Total</td>
+            <td>@item.UpdatedAt</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Orders",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Orders",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Orders",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

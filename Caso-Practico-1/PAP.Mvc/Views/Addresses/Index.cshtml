@@ -1,0 +1,372 @@
+﻿@model IEnumerable<PAP.DataAccess.Address>
+
+@{
+    ViewBag.Title = "Addresses";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Addresses</h2>
+
+    @Html.ActionLink(
+        "Add Address",
+        "Index",
+        "Addresses",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.AddressDetail != null)
+{
+    var detail = (PAP.DataAccess.Address)ViewBag.AddressDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Address Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Customer ID:</strong> @detail.CustomerId</p>
+            <p><strong>Address Type:</strong> @detail.AddressType</p>
+            <p><strong>Street:</strong> @detail.Street</p>
+            <p><strong>City:</strong> @detail.City</p>
+            <p><strong>State:</strong> @detail.State</p>
+            <p><strong>Postal Code:</strong> @detail.PostalCode</p>
+            <p><strong>Country:</strong> @detail.Country</p>
+            <p><strong>Default:</strong> @detail.IsDefault</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Addresses",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Address</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Addresses", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Customer ID</label>
+                    <input type="number"
+                           name="CustomerId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Address Type</label>
+                    <input type="text"
+                           name="AddressType"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Street</label>
+                    <input type="text"
+                           name="Street"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text"
+                           name="City"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text"
+                           name="State"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Postal Code</label>
+                    <input type="text"
+                           name="PostalCode"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text"
+                           name="Country"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox"
+                               name="IsDefault"
+                               value="true" />
+                        Default Address
+                    </label>
+                </div>
+
+                <input type="hidden"
+                       name="IsDefault"
+                       value="false" />
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Addresses",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.AddressEdit != null)
+{
+    var edit = (PAP.DataAccess.Address)ViewBag.AddressEdit;
+
+    <h4>Edit Address</h4>
+
+    using (Html.BeginForm("Edit", "Addresses", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <div class="form-group">
+            <label>Customer ID</label>
+            <input type="number"
+                   name="CustomerId"
+                   value="@edit.CustomerId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Address Type</label>
+            <input type="text"
+                   name="AddressType"
+                   value="@edit.AddressType"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Street</label>
+            <input type="text"
+                   name="Street"
+                   value="@edit.Street"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>City</label>
+            <input type="text"
+                   name="City"
+                   value="@edit.City"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>State</label>
+            <input type="text"
+                   name="State"
+                   value="@edit.State"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Postal Code</label>
+            <input type="text"
+                   name="PostalCode"
+                   value="@edit.PostalCode"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Country</label>
+            <input type="text"
+                   name="Country"
+                   value="@edit.Country"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox"
+                       name="IsDefault"
+                       value="true"
+                       @(edit.IsDefault ? "checked" : "") />
+                Default Address
+            </label>
+        </div>
+
+        <input type="hidden"
+               name="IsDefault"
+               value="false" />
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Addresses",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.AddressDelete != null)
+{
+    var delete = (PAP.DataAccess.Address)ViewBag.AddressDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this address?</p>
+
+            <p><strong>ID:</strong> @delete.Id</p>
+            <p><strong>Customer ID:</strong> @delete.CustomerId</p>
+            <p><strong>Address Type:</strong> @delete.AddressType</p>
+            <p><strong>Street:</strong> @delete.Street</p>
+            <p><strong>City:</strong> @delete.City</p>
+
+            @using (Html.BeginForm("Delete", "Addresses", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            <br />
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Addresses",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Address List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Customer ID</th>
+        <th>Type</th>
+        <th>Street</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Postal Code</th>
+        <th>Country</th>
+        <th>Default</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.CustomerId</td>
+            <td>@item.AddressType</td>
+            <td>@item.Street</td>
+            <td>@item.City</td>
+            <td>@item.State</td>
+            <td>@item.PostalCode</td>
+            <td>@item.Country</td>
+            <td>@item.IsDefault</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Addresses",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Addresses",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Addresses",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

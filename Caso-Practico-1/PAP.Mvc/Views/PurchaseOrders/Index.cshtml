@@ -1,0 +1,302 @@
+﻿@model IEnumerable<PAP.DataAccess.PurchaseOrder>
+
+@{
+    ViewBag.Title = "Purchase Orders";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Purchase Orders</h2>
+
+    @Html.ActionLink(
+        "Add Purchase Order",
+        "Index",
+        "PurchaseOrders",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.PurchaseOrderDetail != null)
+{
+    var detail = (PAP.DataAccess.PurchaseOrder)ViewBag.PurchaseOrderDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Purchase Order Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Supplier ID:</strong> @detail.SupplierId</p>
+            <p><strong>Order Date:</strong> @detail.OrderDate</p>
+            <p><strong>Expected Date:</strong> @detail.ExpectedDate</p>
+            <p><strong>Status:</strong> @detail.Status</p>
+            <p><strong>Total Cost:</strong> @detail.TotalCost</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "PurchaseOrders",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Purchase Order</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "PurchaseOrders", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Supplier ID</label>
+
+                    <input type="number"
+                           name="SupplierId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Expected Date</label>
+
+                    <input type="date"
+                           name="ExpectedDate"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+
+                    <input type="text"
+                           name="Status"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Total Cost</label>
+
+                    <input type="number"
+                           step="0.01"
+                           name="TotalCost"
+                           class="form-control"
+                           required />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "PurchaseOrders",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.PurchaseOrderEdit != null)
+{
+    var edit = (PAP.DataAccess.PurchaseOrder)ViewBag.PurchaseOrderEdit;
+
+    <h4>Edit Purchase Order</h4>
+
+    using (Html.BeginForm("Edit", "PurchaseOrders", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="OrderDate"
+               value="@edit.OrderDate" />
+
+        <div class="form-group">
+            <label>Supplier ID</label>
+
+            <input type="number"
+                   name="SupplierId"
+                   value="@edit.SupplierId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Expected Date</label>
+
+            <input type="date"
+                   name="ExpectedDate"
+                   value="@(edit.ExpectedDate.HasValue ? edit.ExpectedDate.Value.ToString("yyyy-MM-dd") : "")"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+
+            <input type="text"
+                   name="Status"
+                   value="@edit.Status"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Total Cost</label>
+
+            <input type="number"
+                   step="0.01"
+                   name="TotalCost"
+                   value="@edit.TotalCost"
+                   class="form-control"
+                   required />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "PurchaseOrders",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.PurchaseOrderDelete != null)
+{
+    var delete = (PAP.DataAccess.PurchaseOrder)ViewBag.PurchaseOrderDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this purchase order?</p>
+
+            <p><strong>ID:</strong> @delete.Id</p>
+            <p><strong>Supplier ID:</strong> @delete.SupplierId</p>
+            <p><strong>Status:</strong> @delete.Status</p>
+            <p><strong>Total Cost:</strong> @delete.TotalCost</p>
+
+            @using (Html.BeginForm("Delete", "PurchaseOrders", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            <br />
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "PurchaseOrders",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Purchase Order List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Supplier ID</th>
+        <th>Order Date</th>
+        <th>Expected Date</th>
+        <th>Status</th>
+        <th>Total Cost</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.SupplierId</td>
+            <td>@item.OrderDate</td>
+            <td>@item.ExpectedDate</td>
+            <td>@item.Status</td>
+            <td>@item.TotalCost</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "PurchaseOrders",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "PurchaseOrders",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "PurchaseOrders",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

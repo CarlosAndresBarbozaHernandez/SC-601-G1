@@ -1,0 +1,322 @@
+﻿@model IEnumerable<PAP.DataAccess.Author>
+
+@{
+    ViewBag.Title = "Authors";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Authors</h2>
+
+    @Html.ActionLink(
+        "Add Author",
+        "Index",
+        "Authors",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.AuthorDetail != null)
+{
+    var detail = (PAP.DataAccess.Author)ViewBag.AuthorDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Author Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>First Name:</strong> @detail.FirstName</p>
+            <p><strong>Last Name:</strong> @detail.LastName</p>
+            <p><strong>Biography:</strong> @detail.Biography</p>
+            <p><strong>Birth Date:</strong> @detail.BirthDate</p>
+            <p><strong>Country:</strong> @detail.Country</p>
+            <p><strong>Created At:</strong> @detail.CreatedAt</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Authors",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Author</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Authors", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>First Name</label>
+
+                    <input type="text"
+                           name="FirstName"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name</label>
+
+                    <input type="text"
+                           name="LastName"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Biography</label>
+
+                    <textarea name="Biography"
+                              class="form-control"
+                              rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Birth Date</label>
+
+                    <input type="date"
+                           name="BirthDate"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Country</label>
+
+                    <input type="text"
+                           name="Country"
+                           class="form-control" />
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Authors",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.AuthorEdit != null)
+{
+    var edit = (PAP.DataAccess.Author)ViewBag.AuthorEdit;
+
+    <h4>Edit Author</h4>
+
+    using (Html.BeginForm("Edit", "Authors", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="CreatedAt"
+               value="@edit.CreatedAt" />
+
+        <div class="form-group">
+            <label>First Name</label>
+
+            <input type="text"
+                   name="FirstName"
+                   value="@edit.FirstName"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Last Name</label>
+
+            <input type="text"
+                   name="LastName"
+                   value="@edit.LastName"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Biography</label>
+
+            <textarea name="Biography"
+                      class="form-control"
+                      rows="3">@edit.Biography</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Birth Date</label>
+
+            <input type="date"
+                   name="BirthDate"
+                   value="@(edit.BirthDate.HasValue ? edit.BirthDate.Value.ToString("yyyy-MM-dd") : "")"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Country</label>
+
+            <input type="text"
+                   name="Country"
+                   value="@edit.Country"
+                   class="form-control" />
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Authors",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.AuthorDelete != null)
+{
+    var delete = (PAP.DataAccess.Author)ViewBag.AuthorDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>
+                Are you sure you want to delete this author?
+            </p>
+
+            <p>
+                <strong>ID:</strong>
+                @delete.Id
+            </p>
+
+            <p>
+                <strong>Name:</strong>
+                @delete.FirstName @delete.LastName
+            </p>
+
+            <p>
+                <strong>Country:</strong>
+                @delete.Country
+            </p>
+
+            @using (Html.BeginForm("Delete", "Authors", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            <br />
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Authors",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Author List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Biography</th>
+        <th>Birth Date</th>
+        <th>Country</th>
+        <th>Created At</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.FirstName</td>
+            <td>@item.LastName</td>
+            <td>@item.Biography</td>
+            <td>@item.BirthDate</td>
+            <td>@item.Country</td>
+            <td>@item.CreatedAt</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Authors",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Authors",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Authors",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

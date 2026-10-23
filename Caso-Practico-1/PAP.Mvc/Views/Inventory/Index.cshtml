@@ -1,0 +1,271 @@
+﻿@model IEnumerable<PAP.DataAccess.Inventory>
+
+@{
+    ViewBag.Title = "Inventory";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Inventory</h2>
+
+    @Html.ActionLink(
+        "Add Inventory",
+        "Index",
+        "Inventory",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.InventoryDetail != null)
+{
+    var detail = (PAP.DataAccess.Inventory)ViewBag.InventoryDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Inventory Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Book ID:</strong> @detail.BookId</p>
+            <p><strong>Quantity In Stock:</strong> @detail.QuantityInStock</p>
+            <p><strong>Reorder Level:</strong> @detail.ReorderLevel</p>
+            <p><strong>Last Restocked At:</strong> @detail.LastRestockedAt</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Inventory",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Inventory</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Inventory", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Book ID</label>
+
+                    <input type="number"
+                           name="BookId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity In Stock</label>
+
+                    <input type="number"
+                           name="QuantityInStock"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Reorder Level</label>
+
+                    <input type="number"
+                           name="ReorderLevel"
+                           class="form-control"
+                           required />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Inventory",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.InventoryEdit != null)
+{
+    var edit = (PAP.DataAccess.Inventory)ViewBag.InventoryEdit;
+
+    <h4>Edit Inventory</h4>
+
+    using (Html.BeginForm("Edit", "Inventory", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <div class="form-group">
+            <label>Book ID</label>
+
+            <input type="number"
+                   name="BookId"
+                   value="@edit.BookId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Quantity In Stock</label>
+
+            <input type="number"
+                   name="QuantityInStock"
+                   value="@edit.QuantityInStock"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Reorder Level</label>
+
+            <input type="number"
+                   name="ReorderLevel"
+                   value="@edit.ReorderLevel"
+                   class="form-control"
+                   required />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Inventory",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.InventoryDelete != null)
+{
+    var delete = (PAP.DataAccess.Inventory)ViewBag.InventoryDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this inventory record?</p>
+
+            <p><strong>Book ID:</strong> @delete.BookId</p>
+            <p><strong>Quantity In Stock:</strong> @delete.QuantityInStock</p>
+            <p><strong>Reorder Level:</strong> @delete.ReorderLevel</p>
+
+            @using (Html.BeginForm("Delete", "Inventory", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Inventory",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Inventory List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Book ID</th>
+        <th>Quantity In Stock</th>
+        <th>Reorder Level</th>
+        <th>Last Restocked At</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.BookId</td>
+            <td>@item.QuantityInStock</td>
+            <td>@item.ReorderLevel</td>
+            <td>@item.LastRestockedAt</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Inventory",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Inventory",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Inventory",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

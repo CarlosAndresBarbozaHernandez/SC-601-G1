@@ -1,0 +1,248 @@
+﻿@model IEnumerable<PAP.DataAccess.Genre>
+
+@{
+    ViewBag.Title = "Genres";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Genres</h2>
+
+    @Html.ActionLink(
+        "Add Genre",
+        "Index",
+        "Genres",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.GenreDetail != null)
+{
+    var detail = (PAP.DataAccess.Genre)ViewBag.GenreDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Genre Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>Name:</strong> @detail.Name</p>
+            <p><strong>Description:</strong> @detail.Description</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Genres",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Genre</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Genres", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Name</label>
+
+                    <input type="text"
+                           name="Name"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+
+                    <input type="text"
+                           name="Description"
+                           class="form-control" />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Genres",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.GenreEdit != null)
+{
+    var edit = (PAP.DataAccess.Genre)ViewBag.GenreEdit;
+
+    <h4>Edit Genre</h4>
+
+    using (Html.BeginForm("Edit", "Genres", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <div class="form-group">
+            <label>Name</label>
+
+            <input type="text"
+                   name="Name"
+                   value="@edit.Name"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+
+            <input type="text"
+                   name="Description"
+                   value="@edit.Description"
+                   class="form-control" />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Genres",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.GenreDelete != null)
+{
+    var delete = (PAP.DataAccess.Genre)ViewBag.GenreDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this genre?</p>
+
+            <p>
+                <strong>Name:</strong>
+                @delete.Name
+            </p>
+
+            <p>
+                <strong>Description:</strong>
+                @delete.Description
+            </p>
+
+            @using (Html.BeginForm("Delete", "Genres", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Genres",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Genre List</h4>
+
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+
+            <td>@item.Description</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Genres",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Genres",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Genres",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

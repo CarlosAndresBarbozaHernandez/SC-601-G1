@@ -1,0 +1,462 @@
+﻿@model IEnumerable<PAP.DataAccess.Book>
+
+@{
+    ViewBag.Title = "Books";
+    var books = Model?.ToList() ?? new List<PAP.DataAccess.Book>();
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Books</h2>
+
+    @Html.ActionLink(
+        "Add Book",
+        "Index",
+        "Library",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.BookDetail != null)
+{
+    var detail = (PAP.DataAccess.Book)ViewBag.BookDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Book Details</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Name:</strong> @detail.Name</p>
+            <p><strong>Title:</strong> @detail.Title</p>
+            <p><strong>Author:</strong> @detail.Author</p>
+            <p><strong>Genre:</strong> @detail.Genre</p>
+            <p><strong>Category:</strong> @detail.Category</p>
+            <p><strong>Publisher:</strong> @detail.Publisher</p>
+            <p><strong>Description:</strong> @detail.Description</p>
+            <p><strong>Publication Date:</strong> @detail.PublicationDate</p>
+            <p><strong>Price:</strong> @detail.Price</p>
+            <p><strong>In Stock:</strong> @detail.IsInStock</p>
+            <p><strong>Best Seller:</strong> @detail.IsBestSeller</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Library",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <strong>Add Book</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Library", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text"
+                           name="Name"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text"
+                           name="Title"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text"
+                           name="Author"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Genre</label>
+                    <input type="text"
+                           name="Genre"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text"
+                           name="Category"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Publisher</label>
+                    <input type="text"
+                           name="Publisher"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="Description"
+                              class="form-control"
+                              rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Publication Date</label>
+                    <input type="date"
+                           name="PublicationDate"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Height</label>
+                    <input type="number"
+                           step="0.01"
+                           name="Height"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Width</label>
+                    <input type="number"
+                           step="0.01"
+                           name="Width"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number"
+                           step="0.01"
+                           name="Price"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox"
+                               name="IsBestSeller"
+                               value="true" />
+                        Best Seller
+                    </label>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox"
+                               name="IsInStock"
+                               value="true"
+                               checked />
+                        In Stock
+                    </label>
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Library",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.BookEdit != null)
+{
+    var edit = (PAP.DataAccess.Book)ViewBag.BookEdit;
+
+    <h4>Edit Book</h4>
+
+    using (Html.BeginForm("Edit", "Library", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="CreatedAt"
+               value="@edit.CreatedAt" />
+
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text"
+                   name="Name"
+                   value="@edit.Name"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text"
+                   name="Title"
+                   value="@edit.Title"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Author</label>
+            <input type="text"
+                   name="Author"
+                   value="@edit.Author"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Genre</label>
+            <input type="text"
+                   name="Genre"
+                   value="@edit.Genre"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            <input type="text"
+                   name="Category"
+                   value="@edit.Category"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Publisher</label>
+            <input type="text"
+                   name="Publisher"
+                   value="@edit.Publisher"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="Description"
+                      class="form-control"
+                      rows="3">@edit.Description</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Publication Date</label>
+            <input type="date"
+                   name="PublicationDate"
+                   value="@(edit.PublicationDate.HasValue ? edit.PublicationDate.Value.ToString("yyyy-MM-dd") : "")"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Height</label>
+            <input type="number"
+                   step="0.01"
+                   name="Height"
+                   value="@edit.Height"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Width</label>
+            <input type="number"
+                   step="0.01"
+                   name="Width"
+                   value="@edit.Width"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Price</label>
+            <input type="number"
+                   step="0.01"
+                   name="Price"
+                   value="@edit.Price"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox"
+                       name="IsBestSeller"
+                       value="true"
+                       @(edit.IsBestSeller ? "checked" : "") />
+                Best Seller
+            </label>
+        </div>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox"
+                       name="IsInStock"
+                       value="true"
+                       @(edit.IsInStock ? "checked" : "") />
+                In Stock
+            </label>
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Library",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.BookDelete != null)
+{
+    var delete = (PAP.DataAccess.Book)ViewBag.BookDelete;
+
+    <div class="panel panel-warning">
+
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>
+                Are you sure you want to delete this book?
+            </p>
+
+            <p>
+                <strong>ID:</strong>
+                @delete.Id
+            </p>
+
+            <p>
+                <strong>Title:</strong>
+                @delete.Title
+            </p>
+
+            @using (Html.BeginForm("Delete", "Library", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            <br />
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Library",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Book List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Category</th>
+        <th>Publisher</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in books)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Title</td>
+            <td>@item.Author</td>
+            <td>@item.Genre</td>
+            <td>@item.Category</td>
+            <td>@item.Publisher</td>
+            <td>@item.Price</td>
+            <td>@item.IsInStock</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Library",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Library",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Library",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

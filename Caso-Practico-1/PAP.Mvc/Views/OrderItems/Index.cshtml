@@ -1,0 +1,311 @@
+﻿@model IEnumerable<PAP.DataAccess.OrderItem>
+
+@{
+    ViewBag.Title = "Order Items";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Order Items</h2>
+
+    @Html.ActionLink(
+        "Add Order Item",
+        "Index",
+        "OrderItems",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.OrderItemDetail != null)
+{
+    var detail = (PAP.DataAccess.OrderItem)ViewBag.OrderItemDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Order Item Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Order ID:</strong> @detail.OrderId</p>
+            <p><strong>Book ID:</strong> @detail.BookId</p>
+            <p><strong>Quantity:</strong> @detail.Quantity</p>
+            <p><strong>Unit Price:</strong> @detail.UnitPrice</p>
+            <p><strong>Discount:</strong> @detail.Discount</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "OrderItems",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Order Item</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "OrderItems", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Order ID</label>
+                    <input type="number"
+                           name="OrderId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Book ID</label>
+                    <input type="number"
+                           name="BookId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number"
+                           name="Quantity"
+                           min="1"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Unit Price</label>
+                    <input type="number"
+                           step="0.01"
+                           name="UnitPrice"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Discount</label>
+                    <input type="number"
+                           step="0.01"
+                           name="Discount"
+                           class="form-control"
+                           required />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "OrderItems",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.OrderItemEdit != null)
+{
+    var edit = (PAP.DataAccess.OrderItem)ViewBag.OrderItemEdit;
+
+    <h4>Edit Order Item</h4>
+
+    using (Html.BeginForm("Edit", "OrderItems", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <div class="form-group">
+            <label>Order ID</label>
+            <input type="number"
+                   name="OrderId"
+                   value="@edit.OrderId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Book ID</label>
+            <input type="number"
+                   name="BookId"
+                   value="@edit.BookId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Quantity</label>
+            <input type="number"
+                   name="Quantity"
+                   value="@edit.Quantity"
+                   min="1"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Unit Price</label>
+            <input type="number"
+                   step="0.01"
+                   name="UnitPrice"
+                   value="@edit.UnitPrice"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Discount</label>
+            <input type="number"
+                   step="0.01"
+                   name="Discount"
+                   value="@edit.Discount"
+                   class="form-control"
+                   required />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "OrderItems",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.OrderItemDelete != null)
+{
+    var delete = (PAP.DataAccess.OrderItem)ViewBag.OrderItemDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this order item?</p>
+
+            <p><strong>ID:</strong> @delete.Id</p>
+            <p><strong>Order ID:</strong> @delete.OrderId</p>
+            <p><strong>Book ID:</strong> @delete.BookId</p>
+            <p><strong>Quantity:</strong> @delete.Quantity</p>
+
+            @using (Html.BeginForm("Delete", "OrderItems", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            <br />
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "OrderItems",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Order Item List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Order ID</th>
+        <th>Book ID</th>
+        <th>Quantity</th>
+        <th>Unit Price</th>
+        <th>Discount</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.OrderId</td>
+            <td>@item.BookId</td>
+            <td>@item.Quantity</td>
+            <td>@item.UnitPrice</td>
+            <td>@item.Discount</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "OrderItems",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "OrderItems",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "OrderItems",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,275 @@
+﻿@model IEnumerable<PAP.DataAccess.CartItem>
+
+@{
+    ViewBag.Title = "Cart Items";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Cart Items</h2>
+
+    @Html.ActionLink(
+        "Add Cart Item",
+        "Index",
+        "CartItems",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.CartItemDetail != null)
+{
+    var detail = (PAP.DataAccess.CartItem)ViewBag.CartItemDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Cart Item Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>Cart ID:</strong> @detail.CartId</p>
+            <p><strong>Book ID:</strong> @detail.BookId</p>
+            <p><strong>Quantity:</strong> @detail.Quantity</p>
+            <p><strong>Added At:</strong> @detail.AddedAt</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "CartItems",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Cart Item</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "CartItems", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Cart ID</label>
+
+                    <input type="number"
+                           name="CartId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Book ID</label>
+
+                    <input type="number"
+                           name="BookId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+
+                    <input type="number"
+                           name="Quantity"
+                           value="1"
+                           min="1"
+                           class="form-control"
+                           required />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "CartItems",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.CartItemEdit != null)
+{
+    var edit = (PAP.DataAccess.CartItem)ViewBag.CartItemEdit;
+
+    <h4>Edit Cart Item</h4>
+
+    using (Html.BeginForm("Edit", "CartItems", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="AddedAt"
+               value="@edit.AddedAt" />
+
+        <div class="form-group">
+            <label>Cart ID</label>
+
+            <input type="number"
+                   name="CartId"
+                   value="@edit.CartId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Book ID</label>
+
+            <input type="number"
+                   name="BookId"
+                   value="@edit.BookId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Quantity</label>
+
+            <input type="number"
+                   name="Quantity"
+                   value="@edit.Quantity"
+                   min="1"
+                   class="form-control"
+                   required />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "CartItems",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.CartItemDelete != null)
+{
+    var delete = (PAP.DataAccess.CartItem)ViewBag.CartItemDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this cart item?</p>
+
+            <p><strong>Cart ID:</strong> @delete.CartId</p>
+            <p><strong>Book ID:</strong> @delete.BookId</p>
+            <p><strong>Quantity:</strong> @delete.Quantity</p>
+
+            @using (Html.BeginForm("Delete", "CartItems", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "CartItems",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Cart Item List</h4>
+
+<table class="table">
+    <tr>
+        <th>Cart ID</th>
+        <th>Book ID</th>
+        <th>Quantity</th>
+        <th>Added At</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.CartId</td>
+            <td>@item.BookId</td>
+            <td>@item.Quantity</td>
+            <td>@item.AddedAt</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "CartItems",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "CartItems",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "CartItems",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

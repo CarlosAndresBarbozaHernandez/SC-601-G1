@@ -1,0 +1,288 @@
+﻿@model IEnumerable<PAP.DataAccess.Publisher>
+
+@{
+    ViewBag.Title = "Publishers";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Publishers</h2>
+
+    @Html.ActionLink(
+        "Add Publisher",
+        "Index",
+        "Publishers",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.PublisherDetail != null)
+{
+    var detail = (PAP.DataAccess.Publisher)ViewBag.PublisherDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Publisher Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>Name:</strong> @detail.Name</p>
+            <p><strong>Country:</strong> @detail.Country</p>
+            <p><strong>Website:</strong> @detail.Website</p>
+            <p><strong>Email:</strong> @detail.Email</p>
+            <p><strong>Created At:</strong> @detail.CreatedAt</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Publishers",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Publisher</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Publishers", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Name</label>
+
+                    <input type="text"
+                           name="Name"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Country</label>
+
+                    <input type="text"
+                           name="Country"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Website</label>
+
+                    <input type="text"
+                           name="Website"
+                           class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+
+                    <input type="text"
+                           name="Email"
+                           class="form-control" />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Publishers",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.PublisherEdit != null)
+{
+    var edit = (PAP.DataAccess.Publisher)ViewBag.PublisherEdit;
+
+    <h4>Edit Publisher</h4>
+
+    using (Html.BeginForm("Edit", "Publishers", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="CreatedAt"
+               value="@edit.CreatedAt" />
+
+        <div class="form-group">
+            <label>Name</label>
+
+            <input type="text"
+                   name="Name"
+                   value="@edit.Name"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Country</label>
+
+            <input type="text"
+                   name="Country"
+                   value="@edit.Country"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Website</label>
+
+            <input type="text"
+                   name="Website"
+                   value="@edit.Website"
+                   class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+
+            <input type="text"
+                   name="Email"
+                   value="@edit.Email"
+                   class="form-control" />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Publishers",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.PublisherDelete != null)
+{
+    var delete = (PAP.DataAccess.Publisher)ViewBag.PublisherDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this publisher?</p>
+
+            <p><strong>Name:</strong> @delete.Name</p>
+            <p><strong>Country:</strong> @delete.Country</p>
+            <p><strong>Email:</strong> @delete.Email</p>
+
+            @using (Html.BeginForm("Delete", "Publishers", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Publishers",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Publisher List</h4>
+
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Website</th>
+        <th>Email</th>
+        <th>Created At</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.Country</td>
+            <td>@item.Website</td>
+            <td>@item.Email</td>
+            <td>@item.CreatedAt</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Publishers",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Publishers",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Publishers",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

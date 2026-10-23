@@ -1,0 +1,322 @@
+﻿@model IEnumerable<PAP.DataAccess.Payment>
+
+@{
+    ViewBag.Title = "Payments";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Payments</h2>
+
+    @Html.ActionLink(
+        "Add Payment",
+        "Index",
+        "Payments",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.PaymentDetail != null)
+{
+    var detail = (PAP.DataAccess.Payment)ViewBag.PaymentDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Payment Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>ID:</strong> @detail.Id</p>
+            <p><strong>Order ID:</strong> @detail.OrderId</p>
+            <p><strong>Payment Method:</strong> @detail.PaymentMethod</p>
+            <p><strong>Amount:</strong> @detail.Amount</p>
+            <p><strong>Payment Date:</strong> @detail.PaymentDate</p>
+            <p><strong>Status:</strong> @detail.Status</p>
+            <p><strong>Transaction Ref:</strong> @detail.TransactionRef</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Payments",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Payment</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Payments", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Order ID</label>
+
+                    <input type="number"
+                           name="OrderId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Method</label>
+
+                    <input type="text"
+                           name="PaymentMethod"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Amount</label>
+
+                    <input type="number"
+                           step="0.01"
+                           name="Amount"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+
+                    <input type="text"
+                           name="Status"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Transaction Ref</label>
+
+                    <input type="text"
+                           name="TransactionRef"
+                           class="form-control" />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Payments",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.PaymentEdit != null)
+{
+    var edit = (PAP.DataAccess.Payment)ViewBag.PaymentEdit;
+
+    <h4>Edit Payment</h4>
+
+    using (Html.BeginForm("Edit", "Payments", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="PaymentDate"
+               value="@edit.PaymentDate" />
+
+        <div class="form-group">
+            <label>Order ID</label>
+
+            <input type="number"
+                   name="OrderId"
+                   value="@edit.OrderId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Payment Method</label>
+
+            <input type="text"
+                   name="PaymentMethod"
+                   value="@edit.PaymentMethod"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Amount</label>
+
+            <input type="number"
+                   step="0.01"
+                   name="Amount"
+                   value="@edit.Amount"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+
+            <input type="text"
+                   name="Status"
+                   value="@edit.Status"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Transaction Ref</label>
+
+            <input type="text"
+                   name="TransactionRef"
+                   value="@edit.TransactionRef"
+                   class="form-control" />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Payments",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.PaymentDelete != null)
+{
+    var delete = (PAP.DataAccess.Payment)ViewBag.PaymentDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this payment?</p>
+
+            <p><strong>ID:</strong> @delete.Id</p>
+            <p><strong>Order ID:</strong> @delete.OrderId</p>
+            <p><strong>Amount:</strong> @delete.Amount</p>
+            <p><strong>Status:</strong> @delete.Status</p>
+
+            @using (Html.BeginForm("Delete", "Payments", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            <br />
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Payments",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Payment List</h4>
+
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Order ID</th>
+        <th>Payment Method</th>
+        <th>Amount</th>
+        <th>Payment Date</th>
+        <th>Status</th>
+        <th>Transaction Ref</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.OrderId</td>
+            <td>@item.PaymentMethod</td>
+            <td>@item.Amount</td>
+            <td>@item.PaymentDate</td>
+            <td>@item.Status</td>
+            <td>@item.TransactionRef</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Payments",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Payments",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Payments",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,344 @@
+﻿@model IEnumerable<PAP.DataAccess.Employee>
+
+@{
+    ViewBag.Title = "Employees";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Employees</h2>
+
+    @Html.ActionLink(
+        "Add Employee",
+        "Index",
+        "Employees",
+        new { create = true },
+        new { @class = "btn btn-primary" }
+    )
+</div>
+
+
+@if (ViewBag.EmployeeDetail != null)
+{
+    var detail = (PAP.DataAccess.Employee)ViewBag.EmployeeDetail;
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Employee Details</strong>
+        </div>
+
+        <div class="panel-body">
+            <p><strong>Role ID:</strong> @detail.RoleId</p>
+            <p><strong>First Name:</strong> @detail.FirstName</p>
+            <p><strong>Last Name:</strong> @detail.LastName</p>
+            <p><strong>Email:</strong> @detail.Email</p>
+            <p><strong>Active:</strong> @detail.IsActive</p>
+            <p><strong>Created At:</strong> @detail.CreatedAt</p>
+
+            @Html.ActionLink(
+                "Close",
+                "Index",
+                "Employees",
+                null,
+                new { @class = "btn btn-default" }
+            )
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.ShowCreate == true)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong>Add Employee</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm("Create", "Employees", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label>Role ID</label>
+
+                    <input type="number"
+                           name="RoleId"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>First Name</label>
+
+                    <input type="text"
+                           name="FirstName"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name</label>
+
+                    <input type="text"
+                           name="LastName"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+
+                    <input type="email"
+                           name="Email"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+
+                    <input type="text"
+                           name="PasswordHash"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox"
+                               name="IsActive"
+                               value="true"
+                               checked />
+                        Active
+                    </label>
+
+                    <input type="hidden"
+                           name="IsActive"
+                           value="false" />
+                </div>
+
+                <br />
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add
+                </button>
+
+                @Html.ActionLink(
+                    "Cancel",
+                    "Index",
+                    "Employees",
+                    null,
+                    new { @class = "btn btn-default" }
+                )
+            }
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+@if (ViewBag.EmployeeEdit != null)
+{
+    var edit = (PAP.DataAccess.Employee)ViewBag.EmployeeEdit;
+
+    <h4>Edit Employee</h4>
+
+    using (Html.BeginForm("Edit", "Employees", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="Id"
+               value="@edit.Id" />
+
+        <input type="hidden"
+               name="CreatedAt"
+               value="@edit.CreatedAt" />
+
+        <input type="hidden"
+               name="PasswordHash"
+               value="@edit.PasswordHash" />
+
+        <div class="form-group">
+            <label>Role ID</label>
+
+            <input type="number"
+                   name="RoleId"
+                   value="@edit.RoleId"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>First Name</label>
+
+            <input type="text"
+                   name="FirstName"
+                   value="@edit.FirstName"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Last Name</label>
+
+            <input type="text"
+                   name="LastName"
+                   value="@edit.LastName"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+
+            <input type="email"
+                   name="Email"
+                   value="@edit.Email"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox"
+                       name="IsActive"
+                       value="true"
+                       @(edit.IsActive ? "checked" : "") />
+                Active
+            </label>
+
+            <input type="hidden"
+                   name="IsActive"
+                   value="false" />
+        </div>
+
+        <br />
+
+        <button type="submit"
+                class="btn btn-primary">
+            Save Changes
+        </button>
+
+        @Html.ActionLink(
+            "Cancel",
+            "Index",
+            "Employees",
+            null,
+            new { @class = "btn btn-default" }
+        )
+    }
+
+    <hr />
+}
+
+
+@if (ViewBag.EmployeeDelete != null)
+{
+    var delete = (PAP.DataAccess.Employee)ViewBag.EmployeeDelete;
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <strong>Confirm Delete</strong>
+        </div>
+
+        <div class="panel-body">
+
+            <p>Are you sure you want to delete this employee?</p>
+
+            <p>
+                <strong>Employee:</strong>
+                @delete.FirstName @delete.LastName
+            </p>
+
+            <p>
+                <strong>Email:</strong>
+                @delete.Email
+            </p>
+
+            @using (Html.BeginForm("Delete", "Employees", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@delete.Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Confirm Delete
+                </button>
+            }
+
+            @Html.ActionLink(
+                "Cancel",
+                "Index",
+                "Employees",
+                null,
+                new { @class = "btn btn-default" }
+            )
+
+        </div>
+    </div>
+
+    <hr />
+}
+
+
+<h4>Employee List</h4>
+
+<table class="table">
+    <tr>
+        <th>Role ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Active</th>
+        <th>Created At</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.RoleId</td>
+            <td>@item.FirstName</td>
+            <td>@item.LastName</td>
+            <td>@item.Email</td>
+            <td>@item.IsActive</td>
+            <td>@item.CreatedAt</td>
+
+            <td>
+                @Html.ActionLink(
+                    "Edit",
+                    "Index",
+                    "Employees",
+                    new { editId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Details",
+                    "Index",
+                    "Employees",
+                    new { detailsId = item.Id },
+                    null
+                )
+                |
+                @Html.ActionLink(
+                    "Delete",
+                    "Index",
+                    "Employees",
+                    new { deleteId = item.Id },
+                    null
+                )
+            </td>
+        </tr>
+    }
+</table>
