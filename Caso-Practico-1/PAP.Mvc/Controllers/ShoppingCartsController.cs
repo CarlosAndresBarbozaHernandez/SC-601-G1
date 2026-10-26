@@ -1,5 +1,4 @@
 ﻿using PAP.Business;
-using PAP.Business;
 using PAP.DataAccess;
 using System;
 using System.Web.Mvc;
