@@ -1,5 +1,8 @@
-﻿using PAP.Generators;
+﻿using PAP.DataAccess;
+using PAP.Generators;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace PAP.Mvc.Controllers
@@ -57,67 +60,102 @@ namespace PAP.Mvc.Controllers
 
         public ActionResult Index()
         {
-            ViewBag.CanGenerateAuthors =
-                _validation.CanGenerateAuthors();
+            Dictionary<string, int> rows = GetRowCounts();
 
-            ViewBag.CanGenerateCategories =
-                _validation.CanGenerateCategories();
+            var tables = new List<AdminTableStatus>
+            {
+                Status("Authors",            0, _validation.CanGenerateAuthors(),            rows),
+                Status("Categories",         0, _validation.CanGenerateCategories(),         rows),
+                Status("Genres",             0, _validation.CanGenerateGenres(),             rows),
+                Status("Publishers",         0, _validation.CanGeneratePublishers(),         rows),
+                Status("Suppliers",          0, _validation.CanGenerateSuppliers(),          rows),
+                Status("Roles",              0, _validation.CanGenerateRoles(),              rows),
+                Status("Customers",          0, _validation.CanGenerateCustomers(),          rows),
+                Status("Books",              1, _validation.CanGenerateBooks(),              rows, "Publishers", "Categories", "Genres"),
+                Status("Employees",          1, _validation.CanGenerateEmployees(),          rows, "Roles"),
+                Status("Addresses",          1, _validation.CanGenerateAddresses(),          rows, "Customers"),
+                Status("ShoppingCarts",      1, _validation.CanGenerateShoppingCarts(),      rows, "Customers"),
+                Status("PurchaseOrders",     1, _validation.CanGeneratePurchaseOrders(),     rows, "Suppliers"),
+                Status("BookAuthors",        2, _validation.CanGenerateBookAuthors(),        rows, "Books", "Authors"),
+                Status("Inventory",          2, _validation.CanGenerateInventory(),          rows, "Books"),
+                Status("Reviews",            2, _validation.CanGenerateReviews(),            rows, "Books", "Customers"),
+                Status("Orders",             2, _validation.CanGenerateOrders(),             rows, "Customers", "Addresses"),
+                Status("CartItems",          2, _validation.CanGenerateCartItems(),          rows, "ShoppingCarts", "Books"),
+                Status("PurchaseOrderItems", 2, _validation.CanGeneratePurchaseOrderItems(), rows, "PurchaseOrders", "Books"),
+                Status("OrderItems",         3, _validation.CanGenerateOrderItems(),         rows, "Orders", "Books"),
+                Status("Payments",           3, _validation.CanGeneratePayments(),           rows, "Orders")
+            };
 
-            ViewBag.CanGenerateGenres =
-                _validation.CanGenerateGenres();
+            return View(tables);
+        }
 
-            ViewBag.CanGeneratePublishers =
-                _validation.CanGeneratePublishers();
+        /// <summary>
+        /// Estado de una tabla para la pantalla de Admin.
+        /// </summary>
+        public class AdminTableStatus
+        {
+            public string Name { get; set; }
+            public int Level { get; set; }
+            public int Rows { get; set; }
+            public bool CanGenerate { get; set; }
+            public List<string> Missing { get; set; }
+            public string Action { get { return "Generate" + Name; } }
+            public bool HasData { get { return Rows > 0; } }
+        }
 
-            ViewBag.CanGenerateSuppliers =
-                _validation.CanGenerateSuppliers();
+        private static AdminTableStatus Status(string name, int level, bool canGenerate,
+            Dictionary<string, int> rows, params string[] dependencies)
+        {
+            int count;
+            rows.TryGetValue(name, out count);
 
-            ViewBag.CanGenerateRoles =
-                _validation.CanGenerateRoles();
+            return new AdminTableStatus
+            {
+                Name = name,
+                Level = level,
+                Rows = count,
+                CanGenerate = canGenerate,
+                Missing = dependencies
+                    .Where(d => !rows.ContainsKey(d) || rows[d] == 0)
+                    .ToList()
+            };
+        }
 
-            ViewBag.CanGenerateCustomers =
-                _validation.CanGenerateCustomers();
+        public class TableRowCount
+        {
+            public string Name { get; set; }
+            public int Total { get; set; }
+        }
 
-            ViewBag.CanGenerateEmployees =
-                _validation.CanGenerateEmployees();
+        /// <summary>
+        /// Cuenta los registros de las 20 tablas en una sola consulta.
+        /// </summary>
+        private static Dictionary<string, int> GetRowCounts()
+        {
+            string[] names =
+            {
+                "Authors", "Categories", "Genres", "Publishers", "Suppliers", "Roles", "Customers",
+                "Books", "Employees", "Addresses", "ShoppingCarts", "PurchaseOrders",
+                "BookAuthors", "Inventory", "Reviews", "Orders", "CartItems", "PurchaseOrderItems",
+                "OrderItems", "Payments"
+            };
 
-            ViewBag.CanGenerateAddresses =
-                _validation.CanGenerateAddresses();
+            string sql = string.Join(" UNION ALL ",
+                names.Select(n => "SELECT '" + n + "' AS Name, COUNT(*) AS Total FROM dbo.[" + n + "]"));
 
-            ViewBag.CanGenerateShoppingCarts =
-                _validation.CanGenerateShoppingCarts();
-
-            ViewBag.CanGenerateCartItems =
-                _validation.CanGenerateCartItems();
-
-            ViewBag.CanGenerateInventory =
-                _validation.CanGenerateInventory();
-
-            ViewBag.CanGenerateOrders =
-                _validation.CanGenerateOrders();
-
-            ViewBag.CanGenerateOrderItems =
-                _validation.CanGenerateOrderItems();
-
-            ViewBag.CanGeneratePayments =
-                _validation.CanGeneratePayments();
-
-            ViewBag.CanGeneratePurchaseOrders =
-                _validation.CanGeneratePurchaseOrders();
-
-            ViewBag.CanGeneratePurchaseOrderItems =
-                _validation.CanGeneratePurchaseOrderItems();
-
-            ViewBag.CanGenerateReviews =
-                _validation.CanGenerateReviews();
-
-            ViewBag.CanGenerateBooks =
-                _validation.CanGenerateBooks();
-
-            ViewBag.CanGenerateBookAuthors =
-                _validation.CanGenerateBookAuthors();
-
-            return View();
+            try
+            {
+                using (var db = new BookStoreDBEntities())
+                {
+                    return db.Database.SqlQuery<TableRowCount>(sql)
+                        .ToList()
+                        .ToDictionary(r => r.Name, r => r.Total);
+                }
+            }
+            catch
+            {
+                return new Dictionary<string, int>();
+            }
         }
 
         [HttpPost]

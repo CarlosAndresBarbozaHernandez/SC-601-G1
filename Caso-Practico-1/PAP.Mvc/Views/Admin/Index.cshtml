@@ -1,356 +1,98 @@
-﻿@{
+﻿@model List<PAP.Mvc.Controllers.AdminController.AdminTableStatus>
+
+@{
     ViewBag.Title = "Admin - Generators";
+
+    int total = Model.Count;
+    int withData = Model.Count(t => t.HasData);
+    int ready = Model.Count(t => !t.HasData && t.CanGenerate && t.Missing.Count == 0);
+    int waiting = Model.Count(t => !t.HasData && t.Missing.Count > 0);
+    int totalRows = Model.Sum(t => t.Rows);
+    int percent = total == 0 ? 0 : (withData * 100 / total);
 }
 
-<h2>Data Generators</h2>
-
-<p>
-    Generate initial data for the database entities.
-</p>
+<div class="admin-head">
+    <h2>Admin: generación de datos</h2>
+    <p class="text-muted">Genera los datos iniciales siguiendo el orden de dependencias entre tablas.</p>
+</div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
+    <div class="alert alert-success">✓ @TempData["Success"]</div>
 }
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
+    <div class="alert alert-danger">✕ @TempData["Error"]</div>
 }
 
-<table class="table table-bordered">
+<div class="stats">
+    <div class="stat">
+        <div class="stat-label">Tablas con datos</div>
+        <div class="stat-value ok">@withData<span class="text-muted" style="font-size:1rem">/@total</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:@(percent)%"></div></div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Listas para generar</div>
+        <div class="stat-value ready">@ready</div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Esperando dependencias</div>
+        <div class="stat-value wait">@waiting</div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Registros totales</div>
+        <div class="stat-value">@totalRows.ToString("N0")</div>
+    </div>
+</div>
+
+<table class="table no-count">
     <thead>
         <tr>
-            <th>Entity</th>
-            <th>Action</th>
+            <th>Tabla</th>
+            <th>Nivel</th>
+            <th>Estado</th>
+            <th style="text-align:right">Registros</th>
+            <th style="text-align:right">Generar</th>
         </tr>
     </thead>
-
     <tbody>
-
-        <tr>
-            <td>Authors</td>
-            <td>
-                @using (Html.BeginForm("GenerateAuthors", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateAuthors)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Categories</td>
-            <td>
-                @using (Html.BeginForm("GenerateCategories", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateCategories)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Genres</td>
-            <td>
-                @using (Html.BeginForm("GenerateGenres", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateGenres)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Publishers</td>
-            <td>
-                @using (Html.BeginForm("GeneratePublishers", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGeneratePublishers)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Suppliers</td>
-            <td>
-                @using (Html.BeginForm("GenerateSuppliers", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateSuppliers)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Roles</td>
-            <td>
-                @using (Html.BeginForm("GenerateRoles", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateRoles)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Customers</td>
-            <td>
-                @using (Html.BeginForm("GenerateCustomers", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateCustomers)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Employees</td>
-            <td>
-                @using (Html.BeginForm("GenerateEmployees", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateEmployees)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Addresses</td>
-            <td>
-                @using (Html.BeginForm("GenerateAddresses", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateAddresses)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>ShoppingCarts</td>
-            <td>
-                @using (Html.BeginForm("GenerateShoppingCarts", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateShoppingCarts)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>CartItems</td>
-            <td>
-                @using (Html.BeginForm("GenerateCartItems", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateCartItems)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Inventory</td>
-            <td>
-                @using (Html.BeginForm("GenerateInventory", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateInventory)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Orders</td>
-            <td>
-                @using (Html.BeginForm("GenerateOrders", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateOrders)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>OrderItems</td>
-            <td>
-                @using (Html.BeginForm("GenerateOrderItems", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateOrderItems)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Payments</td>
-            <td>
-                @using (Html.BeginForm("GeneratePayments", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGeneratePayments)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>PurchaseOrders</td>
-            <td>
-                @using (Html.BeginForm("GeneratePurchaseOrders", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGeneratePurchaseOrders)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>PurchaseOrderItems</td>
-            <td>
-                @using (Html.BeginForm("GeneratePurchaseOrderItems", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGeneratePurchaseOrderItems)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Reviews</td>
-            <td>
-                @using (Html.BeginForm("GenerateReviews", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateReviews)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>Books</td>
-            <td>
-                @using (Html.BeginForm("GenerateBooks", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateBooks)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
-        <tr>
-            <td>BookAuthors</td>
-            <td>
-                @using (Html.BeginForm("GenerateBookAuthors", "Admin", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            disabled="@(!ViewBag.CanGenerateBookAuthors)">
-                        Generate
-                    </button>
-                }
-            </td>
-        </tr>
-
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>
+                    <div class="tbl-name"><span class="schema">dbo.</span>@t.Name</div>
+                    @if (t.Missing.Count > 0)
+                    {
+                        <div class="tbl-missing">Falta: <b>@string.Join(", ", t.Missing)</b></div>
+                    }
+                </td>
+                <td><span class="tbl-level">N@(t.Level)</span></td>
+                <td>
+                    @if (t.HasData)
+                    {
+                        <span class="chip chip-ok">Con datos</span>
+                    }
+                    else if (t.Missing.Count > 0)
+                    {
+                        <span class="chip chip-wait">Bloqueada</span>
+                    }
+                    else
+                    {
+                        <span class="chip chip-ready">Lista</span>
+                    }
+                </td>
+                <td class="tbl-rows">@t.Rows.ToString("N0")</td>
+                <td style="text-align:right">
+                    @using (Html.BeginForm(t.Action, "Admin", FormMethod.Post, new { style = "display:inline" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-primary btn-sm" disabled="@(!t.CanGenerate)">
+                            Generar
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

@@ -10,7 +10,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>@ViewBag.Title - BookStore</title>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
@@ -418,6 +420,87 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    <script>
+        (function () {
+            var actionStyles = [
+                { re: /^(details?|detalles?|ver)$/i, cls: "btn-act btn-act-info", label: "Detalle" },
+                { re: /^(edit|editar)$/i, cls: "btn-act btn-act-edit", label: "Editar" },
+                { re: /^(delete|eliminar|borrar)$/i, cls: "btn-act btn-act-danger", label: "Eliminar" }
+            ];
+
+            var content = document.querySelector(".body-content");
+            if (!content) return;
+
+            content.querySelectorAll("table.table").forEach(function (table) {
+                // Mete la tabla en una tarjeta
+                if (!table.closest(".table-card, .table-responsive")) {
+                    var wrap = document.createElement("div");
+                    wrap.className = "table-card";
+                    table.parentNode.insertBefore(wrap, table);
+                    wrap.appendChild(table);
+                }
+
+                table.querySelectorAll("td").forEach(function (td) {
+                    var styled = false;
+
+                    // Edit / Details / Delete -> botones
+                    td.querySelectorAll("a").forEach(function (a) {
+                        var text = a.textContent.trim();
+                        actionStyles.forEach(function (s) {
+                            if (s.re.test(text)) {
+                                a.className = s.cls;
+                                a.textContent = s.label;
+                                styled = true;
+                            }
+                        });
+                    });
+
+                    if (styled) {
+                        td.classList.add("actions");
+                        table.classList.add("has-actions");
+                        Array.prototype.slice.call(td.childNodes).forEach(function (n) {
+                            if (n.nodeType === 3 && n.textContent.trim() === "|") td.removeChild(n);
+                        });
+                        return;
+                    }
+
+                    // IDs, fechas y números en fuente mono
+                    if (td.children.length === 0) {
+                        var t = td.textContent.trim();
+                        if (/^\d+$/.test(t) && td.cellIndex === 0) {
+                            td.classList.add("mono", "cell-id");
+                        } else if (/^\d{1,4}[\/\-]\d{1,2}[\/\-]\d{1,4}/.test(t) || /^[\d.,]+$/.test(t)) {
+                            td.classList.add("mono");
+                        }
+                    }
+                });
+            });
+
+            // "N registro(s)" debajo del título
+            var tables = content.querySelectorAll("table.table:not(.no-count)");
+            var title = content.querySelector("h2");
+            if (tables.length === 1 && title && !content.querySelector(".page-sub")) {
+                var rows = tables[0].querySelectorAll("tbody tr").length;
+                if (tables[0].querySelector("tbody tr th")) rows--;
+                var sub = document.createElement("div");
+                sub.className = "page-sub";
+                sub.textContent = rows + " registro(s)";
+                var anchor = title.parentNode.tagName === "DIV" && title.parentNode !== content ? title.parentNode : title;
+                anchor.insertAdjacentElement("afterend", sub);
+            }
+
+            // Resalta la sección actual en el menú
+            var path = window.location.pathname.toLowerCase().split("/")[1] || "home";
+            document.querySelectorAll(".navbar a.nav-link, .navbar a.dropdown-item").forEach(function (a) {
+                var href = (a.getAttribute("href") || "").toLowerCase().split("?")[0].split("/")[1] || "home";
+                if (href === path) {
+                    a.classList.add("active-page");
+                    var drop = a.closest(".dropdown");
+                    if (drop) drop.querySelector(".nav-link").classList.add("active-page");
+                }
+            });
+        })();
+    </script>
     @RenderSection("scripts", required: false)
 
 </body>
