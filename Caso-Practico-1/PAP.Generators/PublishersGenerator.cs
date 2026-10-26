@@ -1,6 +1,8 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PAP.Generators
 {
@@ -15,12 +17,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var publisher in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -30,30 +27,39 @@ namespace PAP.Generators
                 throw new Exception("Publishers already contains data.");
             }
 
-            Publisher publisher1 = new Publisher
+            // Nombre, País
+            string[][] data =
             {
-                Name = "Penguin Books",
-                Country = "United Kingdom",
-                Website = "www.penguin.com"
+                new[] { "Penguin Random House", "Estados Unidos" },
+                new[] { "HarperCollins",        "Estados Unidos" },
+                new[] { "Editorial Planeta",    "España" },
+                new[] { "Anagrama",             "España" },
+                new[] { "O'Reilly Media",       "Estados Unidos" },
+                new[] { "Alfaguara",            "España" },
+                new[] { "Editorial Costa Rica", "Costa Rica" },
+                new[] { "Tor Books",            "Estados Unidos" },
+                new[] { "Wiley",                "Estados Unidos" },
+                new[] { "Siglo XXI",            "México" }
             };
 
-            Publisher publisher2 = new Publisher
-            {
-                Name = "HarperCollins",
-                Country = "United States",
-                Website = "www.harpercollins.com"
-            };
+            var publishers = new List<Publisher>();
 
-            Publisher publisher3 = new Publisher
+            foreach (var p in data)
             {
-                Name = "Editorial Planeta",
-                Country = "Spain",
-                Website = "www.planetadelibros.com"
-            };
+                // "Editorial Planeta" -> "editorialplaneta"
+                string slug = GeneratorData.Slug(p[0]).Replace(".", "");
 
-            _repository.Add(publisher1);
-            _repository.Add(publisher2);
-            _repository.Add(publisher3);
+                publishers.Add(new Publisher
+                {
+                    Name = p[0],
+                    Country = p[1],
+                    Website = "https://www." + slug + ".com",
+                    Email = "contacto@" + slug + ".com",
+                    CreatedAt = DateTime.Now
+                });
+            }
+
+            _repository.AddRange(publishers);
         }
     }
 }

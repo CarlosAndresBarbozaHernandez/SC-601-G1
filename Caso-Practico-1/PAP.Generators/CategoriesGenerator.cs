@@ -1,6 +1,8 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PAP.Generators
 {
@@ -15,12 +17,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var category in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -30,27 +27,17 @@ namespace PAP.Generators
                 throw new Exception("Categories already contains data.");
             }
 
-            Category category1 = new Category
+            string[] names =
             {
-                Name = "Fiction",
-                Description = "Fiction books"
+                "Ficción", "No ficción", "Ciencia", "Historia", "Tecnología",
+                "Arte", "Negocios", "Infantil", "Educación", "Biografías"
             };
 
-            Category category2 = new Category
-            {
-                Name = "Technology",
-                Description = "Technology and programming books"
-            };
+            var categories = names
+                .Select(n => new Category { Name = n, Description = "Libros de " + n.ToLower() })
+                .ToList();
 
-            Category category3 = new Category
-            {
-                Name = "History",
-                Description = "History books"
-            };
-
-            _repository.Add(category1);
-            _repository.Add(category2);
-            _repository.Add(category3);
+            _repository.AddRange(categories);
         }
     }
 }

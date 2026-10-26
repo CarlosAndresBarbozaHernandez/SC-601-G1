@@ -1,6 +1,8 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PAP.Generators
 {
@@ -15,12 +17,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var role in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -30,24 +27,14 @@ namespace PAP.Generators
                 throw new Exception("Roles already contains data.");
             }
 
-            Role role1 = new Role
+            var roles = new List<Role>
             {
-                Name = "Admin"
+                new Role { Name = "Admin" },
+                new Role { Name = "Manager" },
+                new Role { Name = "Cashier" }
             };
 
-            Role role2 = new Role
-            {
-                Name = "Manager"
-            };
-
-            Role role3 = new Role
-            {
-                Name = "Cashier"
-            };
-
-            _repository.Add(role1);
-            _repository.Add(role2);
-            _repository.Add(role3);
+            _repository.AddRange(roles);
         }
     }
 }

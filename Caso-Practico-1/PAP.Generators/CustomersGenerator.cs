@@ -1,6 +1,8 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PAP.Generators
 {
@@ -15,12 +17,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var customer in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -30,42 +27,43 @@ namespace PAP.Generators
                 throw new Exception("Customers already contains data.");
             }
 
-            Customer customer1 = new Customer
-            {
-                FirstName = "Sebastian",
-                LastName = "Rivera",
-                Email = "sebastian@test.com",
-                PasswordHash = "1234",
-                Phone = "88888888",
-                BirthDate = new DateTime(2005, 5, 10),
-                IsActive = true
-            };
+            var rnd = GeneratorData.NewRandom();
+            var customers = new List<Customer>();
 
-            Customer customer2 = new Customer
+            // 1) Integrantes del grupo
+            foreach (var member in GeneratorData.TeamMembers)
             {
-                FirstName = "Andrea",
-                LastName = "Mora",
-                Email = "andrea@test.com",
-                PasswordHash = "1234",
-                Phone = "87777777",
-                BirthDate = new DateTime(2000, 8, 15),
-                IsActive = true
-            };
+                string email = GeneratorData.Slug(member[0].Split(' ')[0] + " " + member[1].Split(' ')[0]) + "@correo.com";
+                customers.Add(NewCustomer(rnd, member[0], member[1], email));
+            }
 
-            Customer customer3 = new Customer
+            // 2) Clientes generados hasta completar 40
+            for (int i = customers.Count + 1; i <= 40; i++)
             {
-                FirstName = "Daniel",
-                LastName = "Rojas",
-                Email = "daniel@test.com",
-                PasswordHash = "1234",
-                Phone = "86666666",
-                BirthDate = new DateTime(1998, 3, 20),
-                IsActive = true
-            };
+                string first = GeneratorData.Pick(rnd, GeneratorData.FirstNames);
+                string last = GeneratorData.TwoLastNames(rnd);
+                string email = GeneratorData.Slug(first + " " + last.Split(' ')[0]) + i + "@correo.com";
 
-            _repository.Add(customer1);
-            _repository.Add(customer2);
-            _repository.Add(customer3);
+                customers.Add(NewCustomer(rnd, first, last, email));
+            }
+
+            _repository.AddRange(customers);
+        }
+
+        private static Customer NewCustomer(Random rnd, string first, string last, string email)
+        {
+            return new Customer
+            {
+                FirstName = first,
+                LastName = last,
+                Email = email,
+                PasswordHash = "HASH_" + Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper(),
+                Phone = GeneratorData.Phone(rnd),
+                BirthDate = GeneratorData.DateBetween(rnd, 1965, 2005),
+                IsActive = rnd.Next(10) != 0,   // ~90 % activos
+                CreatedAt = GeneratorData.DaysAgo(rnd, 365),
+                UpdatedAt = DateTime.Now
+            };
         }
     }
 }

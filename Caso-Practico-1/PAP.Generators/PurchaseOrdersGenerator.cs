@@ -1,6 +1,7 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.Generators
@@ -18,12 +19,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var purchaseOrder in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -35,35 +31,32 @@ namespace PAP.Generators
 
             var suppliers = _supplierRepository.GetAll().ToList();
 
-            if (suppliers.Count == 0)
-            {
-                throw new Exception("You must generate Suppliers first.");
-            }
+            if (suppliers.Count == 0) throw new Exception("You must generate Suppliers first.");
 
-            PurchaseOrder purchaseOrder1 = new PurchaseOrder
-            {
-                SupplierId = suppliers[0].Id,
-                OrderDate = DateTime.Now,
-                ExpectedDate = DateTime.Now.AddDays(7),
-                Status = "Pending",
-                TotalCost = 250m
-            };
+            var rnd = GeneratorData.NewRandom();
+            string[] statuses = { "Pending", "Shipped", "Received", "Received" };
+            var orders = new List<PurchaseOrder>();
 
-            _repository.Add(purchaseOrder1);
-
-            if (suppliers.Count > 1)
+            // Dos órdenes de compra por proveedor.
+            // TotalCost queda en 0 y se calcula al generar PurchaseOrderItems.
+            foreach (var supplier in suppliers)
             {
-                PurchaseOrder purchaseOrder2 = new PurchaseOrder
+                for (int i = 0; i < 2; i++)
                 {
-                    SupplierId = suppliers[1].Id,
-                    OrderDate = DateTime.Now,
-                    ExpectedDate = DateTime.Now.AddDays(10),
-                    Status = "Pending",
-                    TotalCost = 400m
-                };
+                    DateTime date = GeneratorData.DaysAgo(rnd, 120);
 
-                _repository.Add(purchaseOrder2);
+                    orders.Add(new PurchaseOrder
+                    {
+                        SupplierId = supplier.Id,
+                        OrderDate = date,
+                        ExpectedDate = date.AddDays(rnd.Next(7, 21)).Date,
+                        Status = GeneratorData.Pick(rnd, statuses),
+                        TotalCost = 0m
+                    });
+                }
             }
+
+            _repository.AddRange(orders);
         }
     }
 }

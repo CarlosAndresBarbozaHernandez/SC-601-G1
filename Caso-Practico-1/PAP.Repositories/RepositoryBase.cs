@@ -104,6 +104,15 @@ namespace PAP.Repositories
         }
 
         /// <summary>
+
+        /// </summary>
+        public void AddRange(IEnumerable<T> entities)
+        {
+            _set.AddRange(entities);
+            Save();
+        }
+
+        /// <summary>
         /// Updates an existing entity in the database and saves changes immediately.
         /// </summary>
         /// <param name="entity">The entity to update</param>

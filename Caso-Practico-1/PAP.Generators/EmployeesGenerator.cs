@@ -1,6 +1,7 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.Generators
@@ -18,12 +19,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var employee in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -33,52 +29,68 @@ namespace PAP.Generators
                 throw new Exception("Employees already contains data.");
             }
 
-            // Employees depends on Roles.
             var roles = _roleRepository.GetAll().ToList();
 
-            if (roles.Count == 0)
+            if (roles.Count == 0) throw new Exception("You must generate Roles first.");
+
+            var rnd = GeneratorData.NewRandom();
+            var employees = new List<Employee>();
+
+            // 1) Integrantes del grupo como administradores
+            foreach (var member in GeneratorData.TeamMembers)
             {
-                throw new Exception("You must generate Roles first.");
+                employees.Add(NewEmployee(member[0], member[1], RoleId(roles, "Admin", 0)));
             }
 
-            int roleId = roles[0].Id;
+            // 2) Dos Managers y seis Cashiers
+            for (int i = 0; i < 8; i++)
+            {
+                int roleId = i < 2 ? RoleId(roles, "Manager", 1) : RoleId(roles, "Cashier", 2);
 
-            Employee employee1 = new Employee
+                employees.Add(NewEmployee(
+                    GeneratorData.Pick(rnd, GeneratorData.FirstNames),
+                    GeneratorData.TwoLastNames(rnd),
+                    roleId));
+            }
+
+            // 3) Correos únicos: nombre.apellido@bookstore.com (+ número si se repite)
+            var used = new HashSet<string>();
+
+            foreach (var e in employees)
+            {
+                string baseEmail = GeneratorData.Slug(e.FirstName.Split(' ')[0] + " " + e.LastName.Split(' ')[0]);
+                string email = baseEmail;
+                int n = 2;
+
+                while (!used.Add(email))
+                {
+                    email = baseEmail + n++;
+                }
+
+                e.Email = email + "@bookstore.com";
+            }
+
+            _repository.AddRange(employees);
+        }
+
+        /// <summary>Busca el Id del rol por nombre; si no existe usa uno por posición.</summary>
+        private static int RoleId(List<Role> roles, string name, int fallbackIndex)
+        {
+            var role = roles.FirstOrDefault(r => r.Name == name);
+            return role != null ? role.Id : roles[fallbackIndex % roles.Count].Id;
+        }
+
+        private static Employee NewEmployee(string first, string last, int roleId)
+        {
+            return new Employee
             {
                 RoleId = roleId,
-                FirstName = "Carlos",
-                LastName = "Mora",
-                Email = "carlos@bookstore.com",
-                PasswordHash = "1234",
+                FirstName = first,
+                LastName = last,
+                PasswordHash = "HASH_" + Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper(),
                 IsActive = true,
                 CreatedAt = DateTime.Now
             };
-
-            Employee employee2 = new Employee
-            {
-                RoleId = roleId,
-                FirstName = "Maria",
-                LastName = "Rojas",
-                Email = "maria@bookstore.com",
-                PasswordHash = "1234",
-                IsActive = true,
-                CreatedAt = DateTime.Now
-            };
-
-            Employee employee3 = new Employee
-            {
-                RoleId = roleId,
-                FirstName = "Daniel",
-                LastName = "Vargas",
-                Email = "daniel@bookstore.com",
-                PasswordHash = "1234",
-                IsActive = true,
-                CreatedAt = DateTime.Now
-            };
-
-            _repository.Add(employee1);
-            _repository.Add(employee2);
-            _repository.Add(employee3);
         }
     }
 }

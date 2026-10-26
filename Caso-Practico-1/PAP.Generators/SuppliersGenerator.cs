@@ -1,6 +1,8 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PAP.Generators
 {
@@ -15,12 +17,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var supplier in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -30,39 +27,33 @@ namespace PAP.Generators
                 throw new Exception("Suppliers already contains data.");
             }
 
-            Supplier supplier1 = new Supplier
+            var rnd = GeneratorData.NewRandom();
+
+            string[] names =
             {
-                Name = "Book Supply CR",
-                ContactName = "Carlos Mora",
-                Email = "carlos@booksupply.com",
-                Phone = "88881111",
-                Address = "San Jose",
-                IsActive = true
+                "Distribuidora Central", "Librería Internacional Mayoreo", "Book Supply CR",
+                "Importadora Lectura", "Global Books S.A.", "Papiro Distribuciones",
+                "EduLibros", "Mundo Editorial"
             };
 
-            Supplier supplier2 = new Supplier
-            {
-                Name = "Central Books",
-                ContactName = "Maria Lopez",
-                Email = "maria@centralbooks.com",
-                Phone = "88882222",
-                Address = "Heredia",
-                IsActive = true
-            };
+            var suppliers = new List<Supplier>();
 
-            Supplier supplier3 = new Supplier
+            for (int i = 0; i < names.Length; i++)
             {
-                Name = "Global Books",
-                ContactName = "Daniel Rojas",
-                Email = "daniel@globalbooks.com",
-                Phone = "88883333",
-                Address = "Cartago",
-                IsActive = true
-            };
+                string[] city = GeneratorData.Pick(rnd, GeneratorData.Cities);
 
-            _repository.Add(supplier1);
-            _repository.Add(supplier2);
-            _repository.Add(supplier3);
+                suppliers.Add(new Supplier
+                {
+                    Name = names[i],
+                    ContactName = GeneratorData.Pick(rnd, GeneratorData.FirstNames) + " " + GeneratorData.TwoLastNames(rnd),
+                    Email = "ventas@" + GeneratorData.Slug(names[i]).Replace(".", "") + ".com",
+                    Phone = "+506 2" + rnd.Next(100, 1000) + "-" + rnd.Next(1000, 10000),
+                    Address = city[0] + ", " + city[1] + ", Costa Rica",
+                    IsActive = i != names.Length - 1   // el último queda inactivo
+                });
+            }
+
+            _repository.AddRange(suppliers);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PAP.Generators
 {
@@ -15,12 +17,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var author in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -30,39 +27,25 @@ namespace PAP.Generators
                 throw new Exception("Authors already contains data.");
             }
 
-            Author author1 = new Author
-            {
-                FirstName = "Gabriel",
-                LastName = "Garcia Marquez",
-                Biography = "Colombian writer",
-                BirthDate = new DateTime(1927, 3, 6),
-                Country = "Colombia",
-                CreatedAt = DateTime.Now
-            };
+            var rnd = GeneratorData.NewRandom();
+            var authors = new List<Author>();
 
-            Author author2 = new Author
+            for (int i = 0; i < 30; i++)
             {
-                FirstName = "George",
-                LastName = "Orwell",
-                Biography = "English writer",
-                BirthDate = new DateTime(1903, 6, 25),
-                Country = "United Kingdom",
-                CreatedAt = DateTime.Now
-            };
+                string country = GeneratorData.Pick(rnd, GeneratorData.Countries);
 
-            Author author3 = new Author
-            {
-                FirstName = "Jane",
-                LastName = "Austen",
-                Biography = "English novelist",
-                BirthDate = new DateTime(1775, 12, 16),
-                Country = "United Kingdom",
-                CreatedAt = DateTime.Now
-            };
+                authors.Add(new Author
+                {
+                    FirstName = GeneratorData.Pick(rnd, GeneratorData.FirstNames),
+                    LastName = GeneratorData.TwoLastNames(rnd),
+                    Biography = "Escritor(a) de " + country + " con obras de ficción, ensayo y divulgación.",
+                    BirthDate = GeneratorData.DateBetween(rnd, 1940, 1995),
+                    Country = country,
+                    CreatedAt = DateTime.Now
+                });
+            }
 
-            _repository.Add(author1);
-            _repository.Add(author2);
-            _repository.Add(author3);
+            _repository.AddRange(authors);
         }
     }
 }

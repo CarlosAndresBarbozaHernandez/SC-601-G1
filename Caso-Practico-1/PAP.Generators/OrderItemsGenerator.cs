@@ -1,6 +1,7 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.Generators
@@ -20,12 +21,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var item in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -38,40 +34,45 @@ namespace PAP.Generators
             var orders = _orderRepository.GetAll().ToList();
             var books = _bookRepository.GetAll().ToList();
 
-            if (orders.Count == 0)
-            {
-                throw new Exception("You must generate Orders first.");
-            }
+            if (orders.Count == 0) throw new Exception("You must generate Orders first.");
+            if (books.Count == 0) throw new Exception("Books must contain data first.");
 
-            if (books.Count == 0)
-            {
-                throw new Exception("Books must contain data first.");
-            }
+            var rnd = GeneratorData.NewRandom();
+            var items = new List<OrderItem>();
 
-            OrderItem item1 = new OrderItem
+            // 1 a 4 libros distintos por orden, al precio del libro (10 % de descuento a veces)
+            foreach (var order in orders)
             {
-                OrderId = orders[0].Id,
-                BookId = books[0].Id,
-                Quantity = 1,
-                UnitPrice = 25m,
-                Discount = 0m
-            };
-
-            _repository.Add(item1);
-
-            if (books.Count > 1)
-            {
-                OrderItem item2 = new OrderItem
+                foreach (var book in GeneratorData.PickDistinct(rnd, books, rnd.Next(1, 5)))
                 {
-                    OrderId = orders[0].Id,
-                    BookId = books[1].Id,
-                    Quantity = 2,
-                    UnitPrice = 30m,
-                    Discount = 5m
-                };
-
-                _repository.Add(item2);
+                    items.Add(new OrderItem
+                    {
+                        OrderId = order.Id,
+                        BookId = book.Id,
+                        Quantity = rnd.Next(1, 4),
+                        UnitPrice = book.Price,
+                        Discount = rnd.Next(5) == 0 ? GeneratorData.Money(book.Price * 0.10m) : 0m
+                    });
+                }
             }
+
+            _repository.AddRange(items);
+
+            // Montos de cada orden: Subtotal + IVA 13 % + envío (gratis desde $50)
+            foreach (var order in orders)
+            {
+                decimal subtotal = items
+                    .Where(x => x.OrderId == order.Id)
+                    .Sum(x => x.Quantity * x.UnitPrice - x.Discount);
+
+                order.Subtotal = GeneratorData.Money(subtotal);
+                order.TaxAmount = GeneratorData.Money(subtotal * 0.13m);
+                order.ShippingCost = subtotal >= 50m ? 0m : 4.50m;
+                order.Total = order.Subtotal + order.TaxAmount + order.ShippingCost;
+                order.UpdatedAt = DateTime.Now;
+            }
+
+            _orderRepository.Save();
         }
     }
 }

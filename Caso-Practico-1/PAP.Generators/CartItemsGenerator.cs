@@ -1,6 +1,7 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.Generators
@@ -20,12 +21,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var item in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -38,51 +34,28 @@ namespace PAP.Generators
             var carts = _cartRepository.GetAll().ToList();
             var books = _bookRepository.GetAll().ToList();
 
-            if (carts.Count == 0)
-            {
-                throw new Exception("You must generate ShoppingCarts first.");
-            }
+            if (carts.Count == 0) throw new Exception("You must generate ShoppingCarts first.");
+            if (books.Count == 0) throw new Exception("Books must contain data first.");
 
-            if (books.Count == 0)
-            {
-                throw new Exception("Books must contain data first.");
-            }
+            var rnd = GeneratorData.NewRandom();
+            var items = new List<CartItem>();
 
-            CartItem item1 = new CartItem
+            // 0 a 3 libros distintos por carrito (UNIQUE CartId + BookId)
+            foreach (var cart in carts)
             {
-                CartId = carts[0].Id,
-                BookId = books[0].Id,
-                Quantity = 1,
-                AddedAt = DateTime.Now
-            };
-
-            _repository.Add(item1);
-
-            if (books.Count > 1)
-            {
-                CartItem item2 = new CartItem
+                foreach (var book in GeneratorData.PickDistinct(rnd, books, rnd.Next(0, 4)))
                 {
-                    CartId = carts[0].Id,
-                    BookId = books[1].Id,
-                    Quantity = 2,
-                    AddedAt = DateTime.Now
-                };
-
-                _repository.Add(item2);
+                    items.Add(new CartItem
+                    {
+                        CartId = cart.Id,
+                        BookId = book.Id,
+                        Quantity = rnd.Next(1, 4),
+                        AddedAt = cart.CreatedAt.AddHours(rnd.Next(1, 72))
+                    });
+                }
             }
 
-            if (carts.Count > 1 && books.Count > 2)
-            {
-                CartItem item3 = new CartItem
-                {
-                    CartId = carts[1].Id,
-                    BookId = books[2].Id,
-                    Quantity = 1,
-                    AddedAt = DateTime.Now
-                };
-
-                _repository.Add(item3);
-            }
+            _repository.AddRange(items);
         }
     }
 }

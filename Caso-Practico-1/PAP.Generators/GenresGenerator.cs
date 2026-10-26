@@ -1,6 +1,8 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PAP.Generators
 {
@@ -15,12 +17,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var genre in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -30,27 +27,17 @@ namespace PAP.Generators
                 throw new Exception("Genres already contains data.");
             }
 
-            Genre genre1 = new Genre
+            string[] names =
             {
-                Name = "Fantasy",
-                Description = "Fantasy books"
+                "Novela", "Fantasía", "Ciencia ficción", "Misterio", "Romance",
+                "Terror", "Aventura", "Poesía", "Thriller", "Autoayuda"
             };
 
-            Genre genre2 = new Genre
-            {
-                Name = "Science Fiction",
-                Description = "Science fiction books"
-            };
+            var genres = names
+                .Select(n => new Genre { Name = n, Description = "Género " + n.ToLower() })
+                .ToList();
 
-            Genre genre3 = new Genre
-            {
-                Name = "Mystery",
-                Description = "Mystery books"
-            };
-
-            _repository.Add(genre1);
-            _repository.Add(genre2);
-            _repository.Add(genre3);
+            _repository.AddRange(genres);
         }
     }
 }

@@ -49,6 +49,7 @@
     <Compile Include="CategoriesGenerator.cs" />
     <Compile Include="CustomersGenerator.cs" />
     <Compile Include="EmployeesGenerator.cs" />
+    <Compile Include="GeneratorData.cs" />
     <Compile Include="GeneratorValidation.cs" />
     <Compile Include="GenresGenerator.cs" />
     <Compile Include="InventoryGenerator.cs" />

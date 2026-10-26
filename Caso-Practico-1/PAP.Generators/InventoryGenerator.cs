@@ -1,6 +1,7 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.Generators
@@ -18,12 +19,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var inventory in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -35,46 +31,20 @@ namespace PAP.Generators
 
             var books = _bookRepository.GetAll().ToList();
 
-            if (books.Count == 0)
+            if (books.Count == 0) throw new Exception("Books must contain data first.");
+
+            var rnd = GeneratorData.NewRandom();
+
+            // Un registro por libro. Los libros "sin stock" quedan en 0.
+            var inventory = books.Select(b => new Inventory
             {
-                throw new Exception("Books must contain data first.");
-            }
+                BookId = b.Id,
+                QuantityInStock = b.IsInStock ? rnd.Next(1, 61) : 0,
+                ReorderLevel = rnd.Next(5, 11),
+                LastRestockedAt = GeneratorData.DaysAgo(rnd, 90)
+            }).ToList();
 
-            Inventory inventory1 = new Inventory
-            {
-                BookId = books[0].Id,
-                QuantityInStock = 20,
-                ReorderLevel = 5,
-                LastRestockedAt = DateTime.Now
-            };
-
-            _repository.Add(inventory1);
-
-            if (books.Count > 1)
-            {
-                Inventory inventory2 = new Inventory
-                {
-                    BookId = books[1].Id,
-                    QuantityInStock = 15,
-                    ReorderLevel = 5,
-                    LastRestockedAt = DateTime.Now
-                };
-
-                _repository.Add(inventory2);
-            }
-
-            if (books.Count > 2)
-            {
-                Inventory inventory3 = new Inventory
-                {
-                    BookId = books[2].Id,
-                    QuantityInStock = 30,
-                    ReorderLevel = 10,
-                    LastRestockedAt = DateTime.Now
-                };
-
-                _repository.Add(inventory3);
-            }
+            _repository.AddRange(inventory);
         }
     }
 }

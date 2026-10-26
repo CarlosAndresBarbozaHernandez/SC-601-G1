@@ -1,6 +1,7 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.Generators
@@ -18,12 +19,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var address in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -33,55 +29,38 @@ namespace PAP.Generators
                 throw new Exception("Addresses already contains data.");
             }
 
-            // Addresses depends on Customers.
             var customers = _customerRepository.GetAll().ToList();
 
-            if (customers.Count == 0)
+            if (customers.Count == 0) throw new Exception("You must generate Customers first.");
+
+            var rnd = GeneratorData.NewRandom();
+            var addresses = new List<Address>();
+
+            // Cada cliente: una dirección de envío (default) y una de facturación
+            foreach (var customer in customers)
             {
-                throw new Exception("You must generate Customers first.");
+                addresses.Add(NewAddress(rnd, customer.Id, "Shipping", true));
+                addresses.Add(NewAddress(rnd, customer.Id, "Billing", false));
             }
 
-            int customerId = customers[0].Id;
+            _repository.AddRange(addresses);
+        }
 
-            Address address1 = new Address
+        private static Address NewAddress(Random rnd, int customerId, string type, bool isDefault)
+        {
+            string[] city = GeneratorData.Pick(rnd, GeneratorData.Cities);
+
+            return new Address
             {
                 CustomerId = customerId,
-                AddressType = "Home",
-                Street = "Calle Principal",
-                City = "Heredia",
-                State = "Heredia",
-                PostalCode = "40101",
+                AddressType = type,
+                Street = "Calle " + rnd.Next(1, 90) + ", casa " + rnd.Next(1, 50),
+                City = city[0],
+                State = city[1],
+                PostalCode = city[2],
                 Country = "Costa Rica",
-                IsDefault = true
+                IsDefault = isDefault
             };
-
-            Address address2 = new Address
-            {
-                CustomerId = customerId,
-                AddressType = "Work",
-                Street = "Avenida Central",
-                City = "San Jose",
-                State = "San Jose",
-                PostalCode = "10101",
-                Country = "Costa Rica",
-                IsDefault = false
-            };
-
-            Address address3 = new Address
-            {
-                CustomerId = customerId,
-                AddressType = "Other",
-                Street = "Calle Segunda",
-                City = "Cartago",
-                State = "Cartago",
-                PostalCode = "30101",
-                Country = "Costa Rica",
-                IsDefault = false
-            };
-
-            _repository.Add(address1);
-            _repository.Add(address2);
-            _repository.Add(address3);
         }
     }
 }

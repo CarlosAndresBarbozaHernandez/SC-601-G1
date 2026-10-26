@@ -1,6 +1,7 @@
 ﻿using PAP.DataAccess;
 using PAP.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.Generators
@@ -20,12 +21,7 @@ namespace PAP.Generators
 
         public bool HasData()
         {
-            foreach (var item in _repository.GetAll())
-            {
-                return true;
-            }
-
-            return false;
+            return _repository.GetAll().Any();
         }
 
         public void Generate()
@@ -38,38 +34,38 @@ namespace PAP.Generators
             var purchaseOrders = _purchaseOrderRepository.GetAll().ToList();
             var books = _bookRepository.GetAll().ToList();
 
-            if (purchaseOrders.Count == 0)
-            {
-                throw new Exception("You must generate PurchaseOrders first.");
-            }
+            if (purchaseOrders.Count == 0) throw new Exception("You must generate PurchaseOrders first.");
+            if (books.Count == 0) throw new Exception("Books must contain data first.");
 
-            if (books.Count == 0)
-            {
-                throw new Exception("Books must contain data first.");
-            }
+            var rnd = GeneratorData.NewRandom();
+            var items = new List<PurchaseOrderItem>();
 
-            PurchaseOrderItem item1 = new PurchaseOrderItem
+            // 2 a 4 libros por orden de compra, al 60 % del precio de venta
+            foreach (var po in purchaseOrders)
             {
-                PurchaseOrderId = purchaseOrders[0].Id,
-                BookId = books[0].Id,
-                Quantity = 5,
-                UnitCost = 20m
-            };
-
-            _repository.Add(item1);
-
-            if (books.Count > 1)
-            {
-                PurchaseOrderItem item2 = new PurchaseOrderItem
+                foreach (var book in GeneratorData.PickDistinct(rnd, books, rnd.Next(2, 5)))
                 {
-                    PurchaseOrderId = purchaseOrders[0].Id,
-                    BookId = books[1].Id,
-                    Quantity = 10,
-                    UnitCost = 15m
-                };
-
-                _repository.Add(item2);
+                    items.Add(new PurchaseOrderItem
+                    {
+                        PurchaseOrderId = po.Id,
+                        BookId = book.Id,
+                        Quantity = rnd.Next(10, 51),
+                        UnitCost = GeneratorData.Money(book.Price * 0.60m)
+                    });
+                }
             }
+
+            _repository.AddRange(items);
+
+            // Total de cada orden de compra = suma de sus líneas
+            foreach (var po in purchaseOrders)
+            {
+                po.TotalCost = items
+                    .Where(x => x.PurchaseOrderId == po.Id)
+                    .Sum(x => x.Quantity * x.UnitCost);
+            }
+
+            _purchaseOrderRepository.Save();
         }
     }
 }
