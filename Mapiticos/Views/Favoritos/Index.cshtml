@@ -1,0 +1,515 @@
+﻿@model List<Mapiticos.Models.ViewModels.LugarFavoritoViewModel>
+
+@{
+    ViewData["Title"] = "Mis Favoritos";
+}
+
+<style>
+    .favoritos-contenedor {
+        max-width: 1100px;
+        margin: 35px auto;
+        padding: 0 20px;
+    }
+
+    .favoritos-titulo {
+        color: #203d2c;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .favoritos-descripcion {
+        color: #758274;
+        margin-bottom: 25px;
+    }
+
+    .favoritos-filtros {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        background: white;
+        padding: 18px;
+        border: 1px solid #e1e8d9;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+
+    .favoritos-campo {
+        flex: 1;
+        min-width: 190px;
+    }
+
+        .favoritos-campo label {
+            display: block;
+            color: #35533c;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+    .favoritos-input {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px solid #d5dfce;
+        border-radius: 10px;
+        background: white;
+        color: #203d2c;
+    }
+
+        .favoritos-input:focus {
+            outline: none;
+            border-color: #52785c;
+        }
+
+    .favoritos-contador {
+        color: #758274;
+        font-size: 14px;
+        margin-bottom: 18px;
+    }
+
+    .favorito-tarjeta {
+        background: white;
+        border: 1px solid #e1e8d9;
+        border-radius: 18px;
+        padding: 24px;
+        height: 100%;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+
+        .favorito-tarjeta:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+        }
+
+    .favorito-nombre {
+        color: #203d2c;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .favorito-dato {
+        color: #526453;
+        margin-bottom: 10px;
+    }
+
+    .favorito-estado {
+        display: inline-block;
+        background: #e8efd9;
+        color: #35533c;
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 13px;
+        margin: 8px 0 15px;
+    }
+
+    .favorito-fecha {
+        color: #8a9588;
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    .favorito-acciones {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .favorito-ver {
+        display: inline-block;
+        background: #203d2c;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 18px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .favorito-ver:hover {
+            background: #345a40;
+            color: white;
+        }
+
+    .favorito-quitar {
+        background: transparent;
+        color: #526453;
+        border: 1px solid #d5dfce;
+        border-radius: 25px;
+        padding: 10px 18px;
+        cursor: pointer;
+    }
+
+        .favorito-quitar:hover {
+            background: #f1f4ed;
+        }
+
+    .favoritos-vacio {
+        background: white;
+        border: 1px solid #e1e8d9;
+        border-radius: 20px;
+        text-align: center;
+        padding: 55px 25px;
+    }
+
+    .favoritos-vacio-icono {
+        font-size: 50px;
+        color: #52785c;
+        margin-bottom: 15px;
+    }
+
+    .favoritos-vacio h3 {
+        color: #203d2c;
+    }
+
+    .favoritos-vacio p {
+        color: #758274;
+        margin-bottom: 25px;
+    }
+
+    .favoritos-modal-fondo {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .favoritos-modal {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+    }
+
+        .favoritos-modal h3 {
+            color: #203d2c;
+            margin-bottom: 12px;
+        }
+
+        .favoritos-modal p {
+            color: #758274;
+            margin-bottom: 25px;
+        }
+
+    .favoritos-error {
+        color: #a33b3b;
+        font-size: 14px;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="favoritos-contenedor">
+
+    <h2 class="favoritos-titulo">Mis Favoritos</h2>
+
+    <p class="favoritos-descripcion">
+        Tus lugares especiales, guardados para tu próxima aventura.
+    </p>
+
+    @if (Model.Count == 0)
+    {
+        <div class="favoritos-vacio">
+            <div class="favoritos-vacio-icono">☆</div>
+
+            <h3>Aún no tienes favoritos</h3>
+
+            <p>
+                Explora Costa Rica y guarda los lugares que quieras visitar.
+            </p>
+
+            <a asp-controller="Mapa"
+               asp-action="Index"
+               class="favorito-ver">
+                Explorar mapa
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="favoritos-filtros">
+
+            <div class="favoritos-campo">
+                <label for="buscarFavorito">Buscar lugar</label>
+
+                <input type="search"
+                       id="buscarFavorito"
+                       class="favoritos-input"
+                       placeholder="Buscar por nombre"
+                       oninput="filtrarFavoritos()" />
+            </div>
+
+            <div class="favoritos-campo">
+                <label for="filtrarProvincia">Provincia</label>
+
+                <select id="filtrarProvincia"
+                        class="favoritos-input"
+                        onchange="filtrarFavoritos()">
+
+                    <option value="">Todas las provincias</option>
+
+                    @foreach (var provincia in Model.Select(f => f.Provincia).Distinct().OrderBy(p => p))
+                    {
+                        <option value="@provincia">@provincia</option>
+                    }
+                </select>
+            </div>
+
+            <div class="favoritos-campo">
+                <label for="ordenarFavoritos">Ordenar por</label>
+
+                <select id="ordenarFavoritos"
+                        class="favoritos-input"
+                        onchange="filtrarFavoritos()">
+
+                    <option value="recientes">Más recientes</option>
+                    <option value="antiguos">Más antiguos</option>
+                    <option value="az">Nombre A - Z</option>
+                    <option value="za">Nombre Z - A</option>
+                </select>
+            </div>
+
+        </div>
+
+        <p id="contadorFavoritos" class="favoritos-contador">
+            Mostrando @Model.Count de @Model.Count favoritos
+        </p>
+
+        <div class="row g-4" id="listaFavoritos">
+
+            @foreach (var favorito in Model)
+            {
+                <div class="col-md-6 col-lg-4 favorito-item"
+                     data-nombre="@favorito.Nombre"
+                     data-provincia="@favorito.Provincia"
+                     data-fecha="@favorito.FechaAgregado.ToString("yyyy-MM-ddTHH:mm:ss.fffffff")">
+
+                    <div class="favorito-tarjeta">
+
+                        <h3 class="favorito-nombre">
+                            ☆ @favorito.Nombre
+                        </h3>
+
+                        <div class="favorito-dato">
+                            📍 @favorito.Provincia
+                        </div>
+
+                        <span class="favorito-estado">
+                            @(favorito.Estado == "QuieroIr" ? "Quiero ir" : favorito.Estado)
+                        </span>
+
+                        <div class="favorito-fecha">
+                            Guardado el @favorito.FechaAgregado.ToString("dd/MM/yyyy")
+                        </div>
+
+                        <div class="favorito-acciones">
+
+                            <a asp-controller="Lugares"
+                               asp-action="Ver"
+                               asp-route-id="@favorito.LugarId"
+                               class="favorito-ver">
+                                Ver lugar
+                            </a>
+
+                            <button type="button"
+                                    class="favorito-quitar"
+                                    onclick="abrirConfirmacion(@favorito.LugarId)">
+                                Quitar favorito
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        <div id="sinResultados"
+             class="favoritos-vacio"
+             style="display:none;">
+
+            <div class="favoritos-vacio-icono">⌕</div>
+
+            <h3>No encontramos lugares</h3>
+
+            <p>Probá con otro nombre o seleccioná otra provincia.</p>
+
+            <button type="button"
+                    class="favorito-ver"
+                    onclick="limpiarFiltros()">
+                Limpiar filtros
+            </button>
+        </div>
+    }
+</div>
+
+<div id="modalFavoritos" class="favoritos-modal-fondo">
+
+    <div class="favoritos-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="tituloModalFavoritos">
+
+        <div style="font-size:40px; margin-bottom:12px;">☆</div>
+
+        <h3 id="tituloModalFavoritos">¿Quitar de favoritos?</h3>
+
+        <p>
+            Este lugar dejará de aparecer en tu lista de favoritos.
+        </p>
+
+        <div class="favorito-acciones" style="justify-content:center;">
+
+            <button type="button"
+                    class="favorito-quitar"
+                    onclick="cerrarConfirmacion()">
+                Cancelar
+            </button>
+
+            <button type="button"
+                    id="btnConfirmarQuitar"
+                    class="favorito-ver"
+                    onclick="confirmarQuitarFavorito()">
+                Sí, quitar
+            </button>
+
+        </div>
+
+        <p id="errorFavoritos"
+           class="favoritos-error"
+           style="display:none;"></p>
+
+    </div>
+</div>
+
+<form id="formAntiforgery">
+    @Html.AntiForgeryToken()
+</form>
+
+<script>
+    function filtrarFavoritos() {
+        let busqueda = document.getElementById("buscarFavorito").value.toLowerCase();
+        let provincia = document.getElementById("filtrarProvincia").value;
+        let orden = document.getElementById("ordenarFavoritos").value;
+
+        let lista = document.getElementById("listaFavoritos");
+        let tarjetas = Array.from(document.querySelectorAll(".favorito-item"));
+
+        if (orden === "az") {
+            tarjetas.sort((a, b) => a.dataset.nombre.localeCompare(b.dataset.nombre, "es"));
+        } else if (orden === "za") {
+            tarjetas.sort((a, b) => b.dataset.nombre.localeCompare(a.dataset.nombre, "es"));
+        } else if (orden === "antiguos") {
+            tarjetas.sort((a, b) => a.dataset.fecha.localeCompare(b.dataset.fecha));
+        } else {
+            tarjetas.sort((a, b) => b.dataset.fecha.localeCompare(a.dataset.fecha));
+        }
+
+        let cantidad = 0;
+
+        tarjetas.forEach(function(tarjeta) {
+            let nombre = tarjeta.dataset.nombre.toLowerCase();
+            let provinciaTarjeta = tarjeta.dataset.provincia;
+
+            let coincideNombre = nombre.includes(busqueda);
+            let coincideProvincia = provincia === "" || provinciaTarjeta === provincia;
+
+            if (coincideNombre && coincideProvincia) {
+                tarjeta.style.display = "";
+                cantidad++;
+            } else {
+                tarjeta.style.display = "none";
+            }
+
+            lista.appendChild(tarjeta);
+        });
+
+        document.getElementById("contadorFavoritos").textContent =
+            "Mostrando " + cantidad + " de " + tarjetas.length + " favoritos";
+
+        document.getElementById("sinResultados").style.display =
+            cantidad === 0 ? "block" : "none";
+    }
+
+    function limpiarFiltros() {
+        document.getElementById("buscarFavorito").value = "";
+        document.getElementById("filtrarProvincia").value = "";
+        document.getElementById("ordenarFavoritos").value = "recientes";
+
+        filtrarFavoritos();
+    }
+
+    let lugarSeleccionado = null;
+
+    function abrirConfirmacion(lugarId) {
+        lugarSeleccionado = lugarId;
+
+        document.getElementById("errorFavoritos").style.display = "none";
+        document.getElementById("modalFavoritos").style.display = "flex";
+    }
+
+    function cerrarConfirmacion() {
+        document.getElementById("modalFavoritos").style.display = "none";
+        lugarSeleccionado = null;
+    }
+
+    async function confirmarQuitarFavorito() {
+        if (lugarSeleccionado === null) {
+            return;
+        }
+
+        let boton = document.getElementById("btnConfirmarQuitar");
+        let error = document.getElementById("errorFavoritos");
+
+        boton.disabled = true;
+
+        let token = document.querySelector(
+            '#formAntiforgery input[name="__RequestVerificationToken"]'
+        ).value;
+
+        try {
+            let respuesta = await fetch('@Url.Action("Favorito", "Lugares")', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    lugarId: lugarSeleccionado,
+                    __RequestVerificationToken: token
+                })
+            });
+
+            if (respuesta.ok) {
+                let resultado = await respuesta.json();
+
+                if (resultado.esFavorito === false) {
+                    window.location.reload();
+                    return;
+                }
+            }
+
+            error.textContent = "No se pudo quitar el favorito.";
+            error.style.display = "block";
+
+        } catch {
+            error.textContent = "Ocurrió un error al quitar el favorito.";
+            error.style.display = "block";
+        } finally {
+            boton.disabled = false;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        if (document.getElementById("listaFavoritos")) {
+            filtrarFavoritos();
+        }
+    });
+</script>
+
+

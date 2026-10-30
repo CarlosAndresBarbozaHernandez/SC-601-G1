@@ -1,4 +1,5 @@
 ﻿@model List<Mapiticos.Models.ViewModels.PublicacionFeedViewModel>
+
 @{
     ViewData["Title"] = "Feed";
 }
@@ -6,14 +7,17 @@
 <div class="feed">
     <header class="encabezado">
         <img src="~/img/logo.png" alt="Mapiticos" class="logo" />
+
         <div class="encabezado-acciones">
             <button type="button" class="boton-icono" aria-label="Buscar personas">
                 <i class="ti ti-search"></i>
             </button>
 
-            @* TEMPORAL: luego se mueve a Perfil > Configuración *@
-            <form asp-area="Identity" asp-page="/Account/Logout"
-                  asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
+            <form asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Action("Index", "Home")"
+                  method="post">
+
                 <button type="submit" class="boton-icono" aria-label="Cerrar sesión">
                     <i class="ti ti-logout"></i>
                 </button>
@@ -31,8 +35,10 @@
     @foreach (var p in Model)
     {
         <article class="publicacion">
+
             <div class="publicacion-encabezado">
                 <div class="avatar" aria-hidden="true">
+
                     @if (!string.IsNullOrEmpty(p.AvatarUrl))
                     {
                         <img src="@p.AvatarUrl" alt="" />
@@ -41,52 +47,318 @@
                     {
                         @p.Inicial
                     }
+
                 </div>
+
                 <div class="publicacion-autor">
                     <strong>@p.NombreUsuario</strong>
-                    <span class="publicacion-lugar"><i class="ti ti-map-pin"></i>@p.Lugar</span>
+
+                    <span class="publicacion-lugar">
+                        <i class="ti ti-map-pin"></i>@p.Lugar
+                    </span>
                 </div>
-                <a asp-controller="Mapa" asp-action="Index" asp-route-aventuraId="@p.AventuraId" class="boton-chip">
+
+                <a asp-controller="Mapa"
+                   asp-action="Index"
+                   asp-route-aventuraId="@p.AventuraId"
+                   class="boton-chip">
                     <i class="ti ti-map"></i>Ver en el mapa
                 </a>
             </div>
 
             <div class="publicacion-foto">
+
                 @if (!string.IsNullOrEmpty(p.FotoUrl))
                 {
-                    <img src="@p.FotoUrl" alt="Foto de @p.NombreUsuario en @p.Lugar" />
+                    <img src="@p.FotoUrl"
+                         alt="Foto de @p.NombreUsuario en @p.Lugar" />
                 }
                 else
                 {
-                    <div class="foto-vacia"><i class="ti ti-photo"></i></div>
+                    <div class="foto-vacia">
+                        <i class="ti ti-photo"></i>
+                    </div>
                 }
+
                 <ul class="etiquetas" aria-label="Etiquetas">
+
                     @foreach (var e in p.Etiquetas)
                     {
-                        <li><i class="ti @e.Icono"></i>@e.Nombre</li>
+                        <li>
+                            <i class="ti @e.Icono"></i>@e.Nombre
+                        </li>
                     }
+
                 </ul>
             </div>
 
             <div class="publicacion-acciones">
-                <button type="button" class="accion @(p.LeDiLike ? "activo" : "")"
-                        aria-label="Me gusta" aria-pressed="@(p.LeDiLike ? "true" : "false")">
+
+                <button type="button"
+                        class="accion @(p.LeDiLike ? "activo" : "")"
+                        aria-label="Me gusta"
+                        aria-pressed="@(p.LeDiLike ? "true" : "false")"
+                        onclick="darLike(this, @p.AventuraId)">
+
                     <i class="ti ti-heart"></i>
                 </button>
-                <button type="button" class="accion" aria-label="Comentar">
+
+                <button type="button"
+                        class="accion"
+                        aria-label="Comentar"
+                        aria-expanded="false"
+                        aria-controls="comentarios-@p.AventuraId"
+                        onclick="alternarComentarios(this, @p.AventuraId)">
                     <i class="ti ti-message-circle"></i>
                 </button>
+
                 <span class="espaciador"></span>
-                <button type="button" class="accion accion-texto">
+
+                <button type="button"
+                        class="accion accion-texto">
                     <i class="ti ti-eye-off"></i>Ocultar
                 </button>
+
             </div>
 
             <div class="publicacion-texto">
-                <strong>@p.CantidadLikes me gusta</strong>
-                <p><strong>@p.NombreUsuario</strong> @p.Descripcion</p>
+
+                <strong id="likes-@p.AventuraId">
+                    @p.CantidadLikes me gusta
+                </strong>
+
+                <p>
+                    <strong>@p.NombreUsuario</strong> @p.Descripcion
+                </p>
+
                 <span class="tiempo">@p.TiempoTranscurrido</span>
             </div>
+
+            <!-- Sección de comentarios -->
+            <section id="comentarios-@p.AventuraId"
+                     class="seccion-comentarios"
+                     hidden
+                     style="padding: 12px 16px; border-top: 1px solid #e5e5e5;">
+
+                <div id="lista-comentarios-@p.AventuraId"
+                     aria-live="polite"
+                     style="margin-bottom: 12px;">
+                </div>
+
+                <form onsubmit="publicarComentario(event, @p.AventuraId)"
+                      style="display: flex; gap: 8px; align-items: center;">
+
+                    <input type="text"
+                           id="texto-comentario-@p.AventuraId"
+                           maxlength="500"
+                           required
+                           placeholder="Escribí un comentario..."
+                           aria-label="Escribir comentario"
+                           style="flex: 1; min-width: 0; padding: 10px; border: 1px solid #ddd; border-radius: 8px;" />
+
+                    <button type="submit"
+                            style="padding: 10px 14px; border: none; border-radius: 8px; background: #397b57; color: white; cursor: pointer;">
+                        Publicar
+                    </button>
+                </form>
+
+                <p id="error-comentario-@p.AventuraId"
+                   role="alert"
+                   style="color: #b42318; margin-top: 8px;"
+                   hidden>
+                </p>
+            </section>
+
         </article>
     }
 </div>
+
+<form id="formLike">
+    @Html.AntiForgeryToken()
+</form>
+
+<script>
+    // ===== Likes (funcionalidad existente) =====
+    async function darLike(boton, aventuraId) {
+
+        let token = document.querySelector(
+            '#formLike input[name="__RequestVerificationToken"]'
+        ).value;
+
+        boton.disabled = true;
+
+        try {
+            let respuesta = await fetch('@Url.Action("Like", "Lugares")', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    aventuraId: aventuraId,
+                    __RequestVerificationToken: token
+                })
+            });
+
+            if (!respuesta.ok) {
+                alert("No se pudo actualizar el like.");
+                return;
+            }
+
+            let resultado = await respuesta.json();
+
+            boton.classList.toggle("activo", resultado.meGusta);
+
+            boton.setAttribute(
+                "aria-pressed",
+                resultado.meGusta ? "true" : "false"
+            );
+
+            document.getElementById("likes-" + aventuraId).textContent =
+                resultado.cantidadLikes + " me gusta";
+
+        } catch {
+            alert("Ocurrió un error al dar like.");
+        } finally {
+            boton.disabled = false;
+        }
+    }
+
+    // ===== Mostrar u ocultar comentarios =====
+    async function alternarComentarios(boton, aventuraId) {
+
+        const seccion = document.getElementById(
+            "comentarios-" + aventuraId
+        );
+
+        if (!seccion.hidden) {
+            seccion.hidden = true;
+            boton.setAttribute("aria-expanded", "false");
+            return;
+        }
+
+        seccion.hidden = false;
+        boton.setAttribute("aria-expanded", "true");
+
+        await cargarComentarios(aventuraId);
+    }
+
+    // ===== Consultar comentarios desde SQL Server =====
+    async function cargarComentarios(aventuraId) {
+
+        const lista = document.getElementById(
+            "lista-comentarios-" + aventuraId
+        );
+
+        lista.textContent = "Cargando comentarios...";
+
+        try {
+            const url = '@Url.Action("Comentarios", "Feed")'
+                + "?aventuraId=" + encodeURIComponent(aventuraId);
+
+            const respuesta = await fetch(url);
+
+            if (!respuesta.ok) {
+                throw new Error("No se pudieron consultar los comentarios.");
+            }
+
+            const comentarios = await respuesta.json();
+
+            lista.replaceChildren();
+
+            if (comentarios.length === 0) {
+                const mensaje = document.createElement("p");
+                mensaje.textContent = "Todavía no hay comentarios. ¡Sé el primero!";
+                mensaje.style.color = "#777";
+                lista.appendChild(mensaje);
+                return;
+            }
+
+            comentarios.forEach(comentario => {
+
+                const contenedor = document.createElement("div");
+                contenedor.style.marginBottom = "10px";
+
+                const usuario = document.createElement("strong");
+                usuario.textContent = comentario.nombreUsuario + " ";
+
+                const texto = document.createElement("span");
+                texto.textContent = comentario.texto;
+
+                contenedor.appendChild(usuario);
+                contenedor.appendChild(texto);
+
+                lista.appendChild(contenedor);
+            });
+
+        } catch {
+            lista.textContent = "No se pudieron cargar los comentarios.";
+        }
+    }
+
+    // ===== Publicar un comentario =====
+    async function publicarComentario(evento, aventuraId) {
+
+        evento.preventDefault();
+
+        const formulario = evento.currentTarget;
+        const boton = formulario.querySelector('button[type="submit"]');
+
+        const entrada = document.getElementById(
+            "texto-comentario-" + aventuraId
+        );
+
+        const error = document.getElementById(
+            "error-comentario-" + aventuraId
+        );
+
+        const texto = entrada.value.trim();
+
+        error.hidden = true;
+        error.textContent = "";
+
+        if (texto.length === 0 || texto.length > 500) {
+            error.textContent = "Escribí un comentario de 1 a 500 caracteres.";
+            error.hidden = false;
+            return;
+        }
+
+        const token = document.querySelector(
+            '#formLike input[name="__RequestVerificationToken"]'
+        ).value;
+
+        boton.disabled = true;
+        boton.textContent = "Publicando...";
+
+        try {
+            const respuesta = await fetch(
+                '@Url.Action("AgregarComentario", "Feed")',
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        aventuraId: aventuraId,
+                        texto: texto,
+                        __RequestVerificationToken: token
+                    })
+                }
+            );
+
+            if (!respuesta.ok) {
+                throw new Error("No se pudo publicar el comentario.");
+            }
+
+            entrada.value = "";
+
+            await cargarComentarios(aventuraId);
+
+        } catch {
+            error.textContent = "Ocurrió un error al publicar el comentario.";
+            error.hidden = false;
+        } finally {
+            boton.disabled = false;
+            boton.textContent = "Publicar";
+        }
+    }
+</script>

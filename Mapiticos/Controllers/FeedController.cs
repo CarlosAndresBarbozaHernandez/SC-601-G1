@@ -1,47 +1,82 @@
-﻿using Mapiticos.Models.ViewModels;
+﻿
+using System.Security.Claims;
+using Mapiticos.Repositorios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mapiticos.Controllers
 {
+    [Authorize]
     public class FeedController : Controller
     {
-        public IActionResult Index()
+        private readonly ILugarRepositorio _lugarRepositorio;
+
+        public FeedController(ILugarRepositorio lugarRepositorio)
         {
-            // TEMPORAL: datos de ejemplo.
-            // Cuando este la BD, esta lista la va a traer el repositorio.
-            var publicaciones = new List<PublicacionFeedViewModel>
-            {
-                new PublicacionFeedViewModel
-                {
-                    AventuraId = 1,
-                    NombreUsuario = "ana.rodz",
-                    Lugar = "Volcán Arenal, La Fortuna",
-                    Descripcion = "Amanecer con el volcán despejado. Valió la madrugada.",
-                    CantidadLikes = 86,
-                    LeDiLike = true,
-                    FechaPublicacion = DateTime.Now.AddHours(-2),
-                    Etiquetas = new List<EtiquetaViewModel>
-                    {
-                        new EtiquetaViewModel { Nombre = "Vista", Icono = "ti-sunset" },
-                        new EtiquetaViewModel { Nombre = "Hiking", Icono = "ti-mountain" }
-                    }
-                },
-                new PublicacionFeedViewModel
-                {
-                    AventuraId = 2,
-                    NombreUsuario = "luis.m",
-                    Lugar = "Café en Barva, Heredia",
-                    Descripcion = "Nueva parada obligada antes de subir al volcán.",
-                    CantidadLikes = 41,
-                    FechaPublicacion = DateTime.Now.AddDays(-1),
-                    Etiquetas = new List<EtiquetaViewModel>
-                    {
-                        new EtiquetaViewModel { Nombre = "Café", Icono = "ti-coffee" }
-                    }
-                }
-            };
+            _lugarRepositorio = lugarRepositorio;
+        }
+
+        //  Mostrar publicaciones del Feed 
+        public async Task<IActionResult> Index()
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Challenge();
+
+            // Obtiene las publicaciones reales desde SQL Server
+            var publicaciones = await _lugarRepositorio.ListarFeedAsync(usuarioId);
 
             return View(publicaciones);
+        }
+
+        //  Consultar comentarios de una aventura 
+        [HttpGet]
+        public async Task<IActionResult> Comentarios(int aventuraId)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Challenge();
+
+            if (aventuraId <= 0)
+                return BadRequest();
+
+            var comentarios = await _lugarRepositorio
+                .ListarComentariosAsync(usuarioId, aventuraId);
+
+            return Json(comentarios);
+        }
+
+        // Publicar un comentario 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AgregarComentario(
+            int aventuraId, string texto)
+        {
+            var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (usuarioId == null)
+                return Challenge();
+
+            if (aventuraId <= 0 ||
+                string.IsNullOrWhiteSpace(texto) ||
+                texto.Trim().Length > 500)
+            {
+                return BadRequest(new
+                {
+                    mensaje = "El comentario debe contener entre 1 y 500 caracteres."
+                });
+            }
+
+            await _lugarRepositorio.AgregarComentarioAsync(
+                usuarioId, aventuraId, texto.Trim());
+
+            return Json(new
+            {
+                exito = true,
+                mensaje = "Comentario publicado correctamente."
+            });
         }
     }
 }
