@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@3/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="~/css/Mapiticos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/eventos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/amigos.css" asp-append-version="true" />
     @await RenderSectionAsync("Estilos", required: false)
 </head>
 <body>
@@ -37,8 +39,8 @@
                     <span class="nav-icono"><i class="ti ti-photo"></i></span>Feed
                 </a>
                 <a asp-controller="Favoritos" asp-action="Index"
-                   class="nav-item @(controlador == "Favoritos" ? "activo" : "")"
-                   aria-current="@(controlador == "Favoritos" ? "page" : null)">
+                   class="nav-item @(controlador is "Favoritos" or "Eventos" ? "activo" : "")"
+                   aria-current="@(controlador is "Favoritos" or "Eventos" ? "page" : null)">
                     <span class="nav-icono"><i class="ti ti-star"></i></span>Favoritos
                 </a>
                 <a asp-controller="Notificaciones" asp-action="Index"

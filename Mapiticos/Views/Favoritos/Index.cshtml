@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Mis Favoritos";
+    ViewData["PestanaActiva"] = "lugares";
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/eventos.css" asp-append-version="true" />
 }
 
 <style>
@@ -212,6 +217,8 @@
         Tus lugares especiales, guardados para tu próxima aventura.
     </p>
 
+    <partial name="PestanasFavoritos" />
+
     @if (Model.Count == 0)
     {
         <div class="favoritos-vacio">
@@ -300,7 +307,7 @@
                         </div>
 
                         <span class="favorito-estado">
-                            @(favorito.Estado == "QuieroIr" ? "Quiero ir" : favorito.Estado)
+                            @(favorito.Estado == "QuieroIr" ? "Quiero ir" : "Ya fui")
                         </span>
 
                         <div class="favorito-fecha">
@@ -315,6 +322,14 @@
                                class="favorito-ver">
                                 Ver lugar
                             </a>
+
+                            <button type="button"
+                                    class="favorito-planear"
+                                    data-lugar-id="@favorito.LugarId"
+                                    data-lugar-nombre="@favorito.Nombre"
+                                    onclick="Eventos.abrirPlanear(+this.dataset.lugarId, this.dataset.lugarNombre)">
+                                <i class="ti ti-calendar-plus"></i> Planear salida
+                            </button>
 
                             <button type="button"
                                     class="favorito-quitar"
@@ -387,6 +402,8 @@
 
     </div>
 </div>
+
+<partial name="~/Views/Eventos/ModalPlanear.cshtml" />
 
 <form id="formAntiforgery">
     @Html.AntiForgeryToken()
@@ -512,4 +529,4 @@
     });
 </script>
 
-
+<script src="~/js/eventos.js" asp-append-version="true"></script>

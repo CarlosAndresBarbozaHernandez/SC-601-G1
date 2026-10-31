@@ -1,0 +1,50 @@
+@*
+    Popup "Buscar personas" (pestañas Buscar | Solicitudes).
+    Se abre con: Amigos.abrir()
+    La página que lo usa también debe incluir ~/js/amigos.js
+*@
+
+<div id="amModal" class="am-fondo"
+     data-url-buscar="@Url.Action("Buscar", "Amigos")"
+     data-url-seguir="@Url.Action("Seguir", "Amigos")"
+     data-url-solicitudes="@Url.Action("Solicitudes", "Amigos")"
+     data-url-responder="@Url.Action("ResponderSolicitud", "Amigos")"
+     data-url-perfil="@Url.Action("Perfil", "Amigos")">
+
+    <div class="am-modal" role="dialog" aria-modal="true" aria-labelledby="amTitulo">
+        @Html.AntiForgeryToken()
+
+        <div class="am-cabeza">
+            <h3 id="amTitulo">Personas</h3>
+            <button type="button" class="am-cerrar" data-am-cerrar aria-label="Cerrar">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+
+        <div class="am-tabs" role="tablist">
+            <button type="button" class="am-tab activa" data-am-tab="buscar" role="tab">Buscar</button>
+            <button type="button" class="am-tab" data-am-tab="solicitudes" role="tab">
+                Solicitudes <span id="amContadorSolicitudes" class="am-globito" style="display:none;"></span>
+            </button>
+        </div>
+
+        <!-- Buscar -->
+        <div data-am-panel="buscar">
+            <div class="am-buscador">
+                <i class="ti ti-search"></i>
+                <input id="amTexto" type="search" placeholder="Buscar por @@usuario o nombre"
+                       autocomplete="off" aria-label="Buscar personas" />
+            </div>
+            <div id="amResultados" class="am-lista">
+                <p class="am-vacio">Escribí al menos 2 letras.</p>
+            </div>
+        </div>
+
+        <!-- Solicitudes que me llegaron -->
+        <div data-am-panel="solicitudes" style="display:none;">
+            <div id="amSolicitudes" class="am-lista">
+                <p class="am-vacio">Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>

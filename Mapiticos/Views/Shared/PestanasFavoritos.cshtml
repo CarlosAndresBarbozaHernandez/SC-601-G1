@@ -1,0 +1,31 @@
+﻿@*
+    Pestañas "Lugares | Eventos" + botón "Planear salida".
+    La página que usa esto también debe incluir ModalPlanear y eventos.js
+*@
+@{
+    var activa = ViewData["PestanaActiva"] as string ?? "lugares";
+    var pendientes = ViewData["EventosPendientes"] as int? ?? 0;
+}
+
+<div class="ev-barra">
+    <nav class="ev-pestanas" aria-label="Secciones de favoritos">
+        <a asp-controller="Favoritos" asp-action="Index"
+           class="ev-pestana @(activa == "lugares" ? "activa" : "")"
+           aria-current="@(activa == "lugares" ? "page" : null)">
+            <i class="ti ti-star"></i> Lugares
+        </a>
+        <a asp-controller="Eventos" asp-action="Index"
+           class="ev-pestana @(activa == "eventos" ? "activa" : "")"
+           aria-current="@(activa == "eventos" ? "page" : null)">
+            <i class="ti ti-calendar-event"></i> Eventos
+            @if (pendientes > 0)
+            {
+                <span class="ev-globito" title="Invitaciones sin responder">@pendientes</span>
+            }
+        </a>
+    </nav>
+
+    <button type="button" class="ev-btn" onclick="Eventos.abrirPlanear()">
+        <i class="ti ti-calendar-plus"></i> Planear salida
+    </button>
+</div>

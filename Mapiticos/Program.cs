@@ -36,6 +36,8 @@ builder.Services.AddControllersWithViews(options =>
 builder.Services.AddScoped<IPerfilRepositorio, PerfilRepositorio>();
 builder.Services.AddScoped<IMapaRepositorio, MapaRepositorio>();
 builder.Services.AddScoped<ILugarRepositorio, LugarRepositorio>();
+builder.Services.AddScoped<IEventoRepositorio, EventoRepositorio>();
+builder.Services.AddScoped<IAmigosRepositorio, AmigosRepositorio>();
 
 // Servicios
 builder.Services.AddScoped<IAlmacenFotos, AlmacenFotosLocal>();

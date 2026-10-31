@@ -1,0 +1,71 @@
+﻿@*
+    Popup compartido:
+      - Botón "Planear salida" de arriba      -> Eventos.abrirPlanear()               (elige el lugar)
+      - Botón "Planear salida" de una tarjeta -> Eventos.abrirPlanear(lugarId, nombre) (lugar ya elegido)
+      - Ver evento -> "Invitar"               -> Eventos.abrirInvitar(eventoId)
+*@
+
+<div id="evModal" class="ev-modal-fondo"
+     data-url-amigos="@Url.Action("Amigos", "Eventos")"
+     data-url-lugares="@Url.Action("LugaresFavoritos", "Eventos")"
+     data-url-crear="@Url.Action("Crear", "Eventos")"
+     data-url-invitar="@Url.Action("Invitar", "Eventos")">
+
+    <div class="ev-modal" role="dialog" aria-modal="true" aria-labelledby="evModalTitulo">
+
+        <button type="button" class="ev-modal-cerrar" data-ev-cerrar aria-label="Cerrar">
+            <i class="ti ti-x"></i>
+        </button>
+
+        <form id="evForm" novalidate>
+            @Html.AntiForgeryToken()
+
+            <h3 id="evModalTitulo">Planear salida</h3>
+            <p id="evModalLugar" class="ev-modal-lugar"></p>
+
+            <div id="evCamposEvento">
+                <div class="ev-campo" id="evCampoLugar">
+                    <label for="evLugar">¿A dónde van?</label>
+                    <select id="evLugar" class="ev-input">
+                        <option value="">Cargando tus favoritos...</option>
+                    </select>
+                </div>
+
+                <div class="ev-campo">
+                    <label for="evTitulo">Nombre de la salida</label>
+                    <input id="evTitulo" name="Titulo" class="ev-input" maxlength="100"
+                           placeholder="Ej: Caminata al amanecer" />
+                </div>
+
+                <div class="ev-campo">
+                    <label for="evFecha">Fecha y hora</label>
+                    <input id="evFecha" name="FechaEvento" type="datetime-local" class="ev-input" />
+                </div>
+
+                <div class="ev-campo">
+                    <label for="evDescripcion">Detalles (opcional)</label>
+                    <textarea id="evDescripcion" name="Descripcion" class="ev-input" rows="2" maxlength="500"
+                              placeholder="Punto de encuentro, qué llevar..."></textarea>
+                </div>
+            </div>
+
+            <div class="ev-campo">
+                <label for="evBuscarAmigo">Invitar amigos</label>
+                <input id="evBuscarAmigo" type="search" class="ev-input" placeholder="Buscar amigo"
+                       style="margin-bottom:8px;" />
+                <div id="evAmigos" class="ev-amigos">
+                    <div class="ev-amigos-vacio">Cargando amigos...</div>
+                </div>
+            </div>
+
+            <p id="evError" class="ev-error" style="display:none;"></p>
+
+            <div class="ev-acciones" style="justify-content:flex-end; margin-top:18px;">
+                <button type="button" class="ev-btn-sec" data-ev-cerrar>Cancelar</button>
+                <button type="submit" id="evGuardar" class="ev-btn">
+                    <i class="ti ti-send"></i> <span id="evGuardarTexto">Crear y enviar invitaciones</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,197 @@
+﻿@using System.Globalization
+@using Mapiticos.Models.ViewModels
+@model EventosIndexViewModel
+
+@{
+    ViewData["Title"] = "Mis eventos";
+    ViewData["PestanaActiva"] = "eventos";
+    ViewData["EventosPendientes"] = Model.Contar(EstadosEvento.Pendiente);
+
+    var cr = new CultureInfo("es-CR");
+
+    string ClaseCategoria(string c) => c.ToLowerInvariant();
+    string TextoCategoria(EventoTarjetaViewModel e) => e.Categoria switch
+    {
+        EstadosEvento.Pendiente => "Te invitaron",
+        EstadosEvento.Hecho => "Hecho",
+        _ => e.FechaPasada ? "¿Ya fueron?" : "Programado"
+    };
+}
+
+<div class="ev-contenedor">
+
+    <h2 class="favoritos-titulo" style="color:#203d2c; font-weight:700; margin-bottom:8px;">Mis Favoritos</h2>
+    <p style="color:#758274; margin-bottom:18px;">Planeá salidas con tus amigos a los lugares que guardaste.</p>
+
+    <partial name="PestanasFavoritos" />
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="ev-alerta ok" role="status">@mensaje</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="ev-alerta error" role="alert">@error</div>
+    }
+
+    @if (Model.Eventos.Count == 0)
+    {
+        <div class="ev-vacio">
+            <i class="ti ti-calendar-plus"></i>
+            <h3>Todavía no tenés eventos</h3>
+            <p>Elegí uno de tus lugares favoritos, poné la fecha e invitá a tus amigos.</p>
+            <button type="button" class="ev-btn" onclick="Eventos.abrirPlanear()"><i class="ti ti-calendar-plus"></i> Planear salida</button>
+        </div>
+    }
+    else
+    {
+        <div class="ev-chips" role="group" aria-label="Filtrar eventos">
+            <button type="button" class="ev-chip" data-filtro="todos">
+                Todos<span class="ev-num">@Model.Eventos.Count</span>
+            </button>
+            <button type="button" class="ev-chip" data-filtro="pendientes">
+                Pendientes<span class="ev-num">@Model.Contar(EstadosEvento.Pendiente)</span>
+            </button>
+            <button type="button" class="ev-chip" data-filtro="programados">
+                Programados<span class="ev-num">@Model.Contar(EstadosEvento.Programado)</span>
+            </button>
+            <button type="button" class="ev-chip" data-filtro="hechos">
+                Hechos<span class="ev-num">@Model.Contar(EstadosEvento.Hecho)</span>
+            </button>
+        </div>
+
+        <div class="row g-4" id="listaEventos">
+            @foreach (var e in Model.Eventos)
+            {
+                var visibles = e.Participantes.Take(5).ToList();
+                var resto = e.Participantes.Count - visibles.Count;
+
+                <div class="col-md-6 col-lg-4 evento-item" data-categoria="@ClaseCategoria(e.Categoria)">
+                    <article class="ev-tarjeta">
+
+                        <div class="ev-fecha-bloque">
+                            <div class="ev-calendario" aria-hidden="true">
+                                <div class="mes">@e.FechaEvento.ToString("MMM", cr).TrimEnd('.')</div>
+                                <div class="dia">@e.FechaEvento.Day</div>
+                            </div>
+                            <div>
+                                <h3 class="ev-titulo">@e.Titulo</h3>
+                                <div class="ev-sub">
+                                    @e.FechaEvento.ToString("dddd d 'de' MMMM, h:mm tt", cr)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ev-sub">📍 @e.Lugar, @e.Provincia</div>
+
+                        <span class="ev-etiqueta @(e.FechaPasada ? "aviso" : ClaseCategoria(e.Categoria))">
+                            @TextoCategoria(e)
+                            @if (e.Categoria == EstadosEvento.Pendiente)
+                            {
+                                <text>· de @("@" + e.CreadorNombreUsuario)</text>
+                            }
+                        </span>
+
+                        <div class="ev-avatares">
+                            @foreach (var p in visibles)
+                            {
+                                var clase = "ev-avatar" + (p.Estado == EstadosEvento.Pendiente ? " pendiente" : "");
+                                if (!string.IsNullOrEmpty(p.AvatarUrl))
+                                {
+                                    <img src="@p.AvatarUrl" alt="@p.NombreMostrar" title="@p.NombreMostrar" class="@clase" />
+                                }
+                                else
+                                {
+                                    <span class="@clase" title="@p.NombreMostrar">@p.Inicial</span>
+                                }
+                            }
+                            @if (resto > 0)
+                            {
+                                <span class="ev-avatar">+@resto</span>
+                            }
+                            <span class="ev-avatares-texto">
+                                @e.CantidadAceptados van
+                                @if (e.CantidadPendientes > 0)
+                                {
+                                    <text>· @e.CantidadPendientes sin responder</text>
+                                }
+                            </span>
+                        </div>
+
+                        <div class="ev-acciones">
+                            @if (e.Categoria == EstadosEvento.Pendiente)
+                            {
+                                <form asp-action="Responder" asp-route-id="@e.EventoId" method="post" class="d-inline">
+                                    <input type="hidden" name="acepta" value="true" />
+                                    <button type="submit" class="ev-btn"><i class="ti ti-check"></i> Aceptar</button>
+                                </form>
+                                <form asp-action="Responder" asp-route-id="@e.EventoId" method="post" class="d-inline">
+                                    <input type="hidden" name="acepta" value="false" />
+                                    <button type="submit" class="ev-btn-sec">Rechazar</button>
+                                </form>
+                                <a asp-action="Ver" asp-route-id="@e.EventoId" class="ev-btn-sec">Detalles</a>
+                            }
+                            else
+                            {
+                                <a asp-action="Ver" asp-route-id="@e.EventoId" class="ev-btn">
+                                    <i class="ti ti-message-circle"></i> Ver y chatear
+                                </a>
+                            }
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+
+        <div id="eventosSinResultados" class="ev-vacio" style="display:none;">
+            <i class="ti ti-calendar-off"></i>
+            <h3>Nada por aquí</h3>
+            <p id="eventosSinResultadosTexto"></p>
+        </div>
+    }
+</div>
+
+<partial name="ModalPlanear" />
+
+@section Scripts {
+    <script src="~/js/eventos.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            const chips = document.querySelectorAll('.ev-chip');
+            if (chips.length === 0) return;
+
+            const mensajesVacio = {
+                pendientes: 'No tenés invitaciones por responder.',
+                programados: 'No hay salidas programadas. ¡Planeá una desde tus lugares!',
+                hechos: 'Todavía no has marcado ninguna salida como hecha.'
+            };
+
+            function filtrar(filtro) {
+                // "pendientes" -> "pendiente", etc.
+                const categoria = filtro === 'todos' ? null : filtro.replace(/s$/, '');
+                let visibles = 0;
+
+                document.querySelectorAll('.evento-item').forEach(function (item) {
+                    const mostrar = !categoria || item.dataset.categoria === categoria;
+                    item.style.display = mostrar ? '' : 'none';
+                    if (mostrar) visibles++;
+                });
+
+                chips.forEach(c => c.classList.toggle('activo', c.dataset.filtro === filtro));
+                chips.forEach(c => c.setAttribute('aria-pressed', c.dataset.filtro === filtro));
+
+                document.getElementById('eventosSinResultados').style.display = visibles === 0 ? 'block' : 'none';
+                document.getElementById('eventosSinResultadosTexto').textContent = mensajesVacio[filtro] || '';
+
+                // Deja el filtro en la URL (al volver atrás se mantiene)
+                const url = new URL(window.location);
+                if (filtro === 'todos') url.searchParams.delete('filtro');
+                else url.searchParams.set('filtro', filtro);
+                history.replaceState(null, '', url);
+            }
+
+            chips.forEach(c => c.addEventListener('click', () => filtrar(c.dataset.filtro)));
+            filtrar('@Model.Filtro');
+        })();
+    </script>
+}

@@ -1,0 +1,316 @@
+﻿@using System.Globalization
+@using Mapiticos.Models.ViewModels
+@model EventoDetalleViewModel
+
+@{
+    ViewData["Title"] = Model.Titulo;
+    var cr = new CultureInfo("es-CR");
+
+    string TextoEstado(string estado) => estado switch
+    {
+        EstadosEvento.Aceptado => "Va",
+        EstadosEvento.Pendiente => "Sin responder",
+        EstadosEvento.Rechazado => "No va",
+        _ => estado
+    };
+}
+
+@section Estilos {
+    <link rel="stylesheet" href="~/css/eventos.css" asp-append-version="true" />
+}
+
+<div class="ev-contenedor">
+
+    <a asp-action="Index" class="ev-sub d-inline-flex align-items-center gap-1 mb-3">
+        <i class="ti ti-arrow-left"></i> Mis eventos
+    </a>
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <div class="ev-alerta ok" role="status">@mensaje</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="ev-alerta error" role="alert">@error</div>
+    }
+
+    <div class="ev-detalle">
+
+        <!-- ===== Columna izquierda: datos + participantes ===== -->
+        <div class="d-flex flex-column gap-3">
+
+            <section class="ev-panel">
+                <div class="ev-fecha-bloque mb-3">
+                    <div class="ev-calendario" aria-hidden="true">
+                        <div class="mes">@Model.FechaEvento.ToString("MMM", cr).TrimEnd('.')</div>
+                        <div class="dia">@Model.FechaEvento.Day</div>
+                    </div>
+                    <h2 class="ev-titulo" style="font-size:22px;">@Model.Titulo</h2>
+                </div>
+
+                @if (Model.Categoria == EstadosEvento.Hecho)
+                {
+                    <span class="ev-etiqueta hecho mb-3"><i class="ti ti-circle-check"></i> Hecho</span>
+                }
+                else if (Model.Categoria == EstadosEvento.Pendiente)
+                {
+                    <span class="ev-etiqueta pendiente mb-3"><i class="ti ti-mail"></i> Te invitó @("@" + Model.CreadorNombreUsuario)</span>
+                }
+                else if (Model.FechaPasada)
+                {
+                    <span class="ev-etiqueta aviso mb-3"><i class="ti ti-clock-exclamation"></i> La fecha ya pasó</span>
+                }
+                else
+                {
+                    <span class="ev-etiqueta programado mb-3"><i class="ti ti-calendar-check"></i> Programado</span>
+                }
+
+                <div class="ev-dato">
+                    <i class="ti ti-calendar"></i>
+                    <span>@Model.FechaEvento.ToString("dddd d 'de' MMMM yyyy, h:mm tt", cr)</span>
+                </div>
+                <div class="ev-dato">
+                    <i class="ti ti-map-pin"></i>
+                    <a asp-controller="Lugares" asp-action="Ver" asp-route-id="@Model.LugarId">
+                        @Model.Lugar, @Model.Provincia
+                    </a>
+                </div>
+                <div class="ev-dato">
+                    <i class="ti ti-user-star"></i>
+                    <span>Organiza @("@" + Model.CreadorNombreUsuario)</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+                {
+                    <div class="ev-dato">
+                        <i class="ti ti-notes"></i>
+                        <span style="white-space:pre-wrap;">@Model.Descripcion</span>
+                    </div>
+                }
+
+                <!-- Acciones según quién soy -->
+                <div class="ev-acciones mt-3">
+                    @if (Model.Categoria == EstadosEvento.Pendiente)
+                    {
+                        <form asp-action="Responder" asp-route-id="@Model.EventoId" method="post">
+                            <input type="hidden" name="acepta" value="true" />
+                            <button type="submit" class="ev-btn"><i class="ti ti-check"></i> Aceptar</button>
+                        </form>
+                        <form asp-action="Responder" asp-route-id="@Model.EventoId" method="post">
+                            <input type="hidden" name="acepta" value="false" />
+                            <button type="submit" class="ev-btn-sec">Rechazar</button>
+                        </form>
+                    }
+                    else if (Model.SoyCreador)
+                    {
+                        @if (Model.EstadoEvento == EstadosEvento.Programado)
+                        {
+                            <form asp-action="CambiarEstado" asp-route-id="@Model.EventoId" method="post">
+                                <input type="hidden" name="hecho" value="true" />
+                                <button type="submit" class="ev-btn"><i class="ti ti-circle-check"></i> Marcar como hecho</button>
+                            </form>
+                            <button type="button" class="ev-btn-sec" onclick="Eventos.abrirInvitar(@Model.EventoId)">
+                                <i class="ti ti-user-plus"></i> Invitar
+                            </button>
+                        }
+                        else
+                        {
+                            <form asp-action="CambiarEstado" asp-route-id="@Model.EventoId" method="post">
+                                <input type="hidden" name="hecho" value="false" />
+                                <button type="submit" class="ev-btn-sec"><i class="ti ti-arrow-back-up"></i> Volver a programado</button>
+                            </form>
+                        }
+                        <form asp-action="Eliminar" asp-route-id="@Model.EventoId" method="post"
+                              onsubmit="return confirm('¿Cancelar este evento? Se borra para todos, junto con el chat.');">
+                            <button type="submit" class="ev-btn-peligro">Cancelar evento</button>
+                        </form>
+                    }
+                    else if (Model.EstadoEvento == EstadosEvento.Programado)
+                    {
+                        <form asp-action="Salir" asp-route-id="@Model.EventoId" method="post"
+                              onsubmit="return confirm('¿Seguro que ya no vas?');">
+                            <button type="submit" class="ev-btn-sec"><i class="ti ti-door-exit"></i> Ya no voy</button>
+                        </form>
+                    }
+                </div>
+
+                @if (Model.SoyCreador && Model.EstadoEvento == EstadosEvento.Programado)
+                {
+                    <p class="ev-sub mt-3 mb-0" style="font-size:13px;">
+                        Al marcarlo como hecho, el lugar pasa a <strong>Ya fui</strong> en los favoritos de quienes fueron.
+                    </p>
+                }
+            </section>
+
+            <section class="ev-panel">
+                <h4>Quiénes van (@Model.CantidadAceptados)</h4>
+                @foreach (var p in Model.Participantes)
+                {
+                    <div class="ev-persona" style="@(p.Estado == EstadosEvento.Rechazado ? "opacity:.5" : "")">
+                        @if (!string.IsNullOrEmpty(p.AvatarUrl))
+                        {
+                            <img src="@p.AvatarUrl" alt="" class="ev-avatar" />
+                        }
+                        else
+                        {
+                            <span class="ev-avatar">@p.Inicial</span>
+                        }
+                        <div>
+                            <div class="nombre">@p.NombreMostrar</div>
+                            <div class="ev-sub" style="font-size:12.5px;">@("@" + p.NombreUsuario)</div>
+                        </div>
+                        <span class="estado">@(p.EsCreador ? "Organiza" : TextoEstado(p.Estado))</span>
+                    </div>
+                }
+            </section>
+        </div>
+
+        <!-- ===== Columna derecha: chat ===== -->
+        <section class="ev-panel ev-chat" aria-label="Chat del evento">
+            <div class="ev-chat-cabeza"><i class="ti ti-messages"></i> Chat del grupo</div>
+
+            @if (Model.PuedeChatear)
+            {
+                <div id="chatMensajes" class="ev-chat-mensajes" aria-live="polite">
+                    <div id="chatVacio" class="ev-chat-bloqueado">Nadie ha escrito todavía. ¡Rompé el hielo! 👋</div>
+                </div>
+
+                <form id="chatForm" class="ev-chat-form" autocomplete="off">
+                    @Html.AntiForgeryToken()
+                    <input id="chatTexto" class="ev-input" maxlength="500" placeholder="Escribí un mensaje..."
+                           aria-label="Mensaje" />
+                    <button type="submit" class="ev-btn" aria-label="Enviar"><i class="ti ti-send"></i></button>
+                </form>
+            }
+            else
+            {
+                <div class="ev-chat-bloqueado">
+                    <div>
+                        <i class="ti ti-lock" style="font-size:34px; color:var(--musgo);"></i>
+                        <p class="mt-2 mb-0">Aceptá la invitación para entrar al chat del grupo.</p>
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@if (Model.SoyCreador)
+{
+    <partial name="ModalPlanear" />
+}
+
+@section Scripts {
+    @if (Model.SoyCreador)
+    {
+        <script src="~/js/eventos.js" asp-append-version="true"></script>
+    }
+
+    @if (Model.PuedeChatear)
+    {
+        <script>
+            (function () {
+                const eventoId = @Model.EventoId;
+                const urlMensajes = '@Url.Action("Mensajes", "Eventos")';
+                const urlEnviar = '@Url.Action("EnviarMensaje", "Eventos")';
+                const CADA_MS = 4000;   // revisa mensajes nuevos cada 4 segundos
+
+                const contenedor = document.getElementById('chatMensajes');
+                const vacio = document.getElementById('chatVacio');
+                const form = document.getElementById('chatForm');
+                const input = document.getElementById('chatTexto');
+                const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                let ultimoId = 0;
+                let cargando = false;
+
+                const formatoHora = new Intl.DateTimeFormat('es-CR', {
+                    day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit'
+                });
+
+                // Se arma con textContent: nunca se inserta HTML de los usuarios
+                function pintar(m) {
+                    const fila = document.createElement('div');
+                    fila.className = 'ev-msj' + (m.esMio ? ' mio' : '');
+
+                    let avatar;
+                    if (m.avatarUrl) {
+                        avatar = document.createElement('img');
+                        avatar.src = m.avatarUrl;
+                        avatar.alt = '';
+                    } else {
+                        avatar = document.createElement('span');
+                        avatar.textContent = (m.nombreMostrar || '?').charAt(0).toUpperCase();
+                    }
+                    avatar.className = 'ev-avatar';
+                    avatar.title = m.nombreMostrar;
+
+                    const cuerpo = document.createElement('div');
+                    const burbuja = document.createElement('div');
+                    burbuja.className = 'ev-burbuja';
+                    burbuja.textContent = m.texto;
+
+                    const meta = document.createElement('div');
+                    meta.className = 'ev-msj-meta';
+                    meta.textContent = (m.esMio ? '' : m.nombreMostrar + ' · ') + formatoHora.format(new Date(m.fecha));
+
+                    cuerpo.append(burbuja, meta);
+                    fila.append(avatar, cuerpo);
+                    contenedor.appendChild(fila);
+                }
+
+                async function cargarNuevos() {
+                    if (cargando) return;
+                    cargando = true;
+                    try {
+                        const r = await fetch(urlMensajes + '?eventoId=' + eventoId + '&desdeId=' + ultimoId);
+                        if (!r.ok) return;
+                        const nuevos = await r.json();
+                        if (nuevos.length === 0) return;
+
+                        // Solo baja el scroll si la persona ya estaba abajo
+                        const estabaAbajo = contenedor.scrollHeight - contenedor.scrollTop - contenedor.clientHeight < 60;
+
+                        if (vacio) vacio.remove();
+                        nuevos.forEach(pintar);
+                        ultimoId = nuevos[nuevos.length - 1].mensajeId;
+
+                        if (estabaAbajo) contenedor.scrollTop = contenedor.scrollHeight;
+                    } catch { /* sin conexión: se reintenta en la próxima vuelta */ }
+                    finally { cargando = false; }
+                }
+
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const texto = input.value.trim();
+                    if (!texto) return;
+
+                    input.value = '';
+                    input.focus();
+
+                    try {
+                        const r = await fetch(urlEnviar, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({ eventoId: eventoId, texto: texto, __RequestVerificationToken: token })
+                        });
+                        if (!r.ok) {
+                            const res = await r.json().catch(() => ({}));
+                            alert(res.mensaje || 'No se pudo enviar el mensaje.');
+                            input.value = texto;
+                            return;
+                        }
+                        await cargarNuevos();
+                        contenedor.scrollTop = contenedor.scrollHeight;
+                    } catch {
+                        input.value = texto;
+                    }
+                });
+
+                cargarNuevos().then(() => contenedor.scrollTop = contenedor.scrollHeight);
+                setInterval(function () {
+                    if (!document.hidden) cargarNuevos();
+                }, CADA_MS);
+            })();
+        </script>
+    }
+}

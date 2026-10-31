@@ -1,6 +1,4 @@
-﻿using PAP.Models;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace PAP.DataAccess
@@ -15,14 +13,14 @@ namespace PAP.DataAccess
         /// </summary>
         public DataAccessLayer()
         {
-            
+
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Book> GetAllBooks() 
+        public IEnumerable<Book> GetAllBooks()
         {
             /*
             var books2 = new List<Book>
