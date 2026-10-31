@@ -1,10 +1,11 @@
 using System.Security.Claims;
 using Mapiticos.Repositorios;
+using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mapiticos.Controllers
 {
-    // Endpoints JSON del popup "Buscar personas" (se abre desde el Feed).
+    // Perfil de otras personas + endpoints JSON del buscador del Feed.
     public class AmigosController : Controller
     {
         private readonly IAmigosRepositorio _amigosRepositorio;
@@ -15,6 +16,15 @@ namespace Mapiticos.Controllers
         }
 
         private string? UsuarioActualId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        // Error de SQL con un mensaje que dice qué falta (se ve en el popup)
+        private IActionResult ErrorBaseDatos(SqlException ex) =>
+            StatusCode(500, new
+            {
+                mensaje = ex.Number == 2812   // 2812 = no existe el procedimiento
+                    ? "Falta correr 13.Amigos.sql en SQL Server (no existe " + ex.Message.Split('\'').ElementAtOrDefault(1) + ")."
+                    : "Error de base de datos: " + ex.Message
+            });
 
         // GET /Amigos/Perfil/ana   -> perfil de otra persona (tipo Instagram)
         public async Task<IActionResult> Perfil(string id)
@@ -46,7 +56,14 @@ namespace Mapiticos.Controllers
 
             if (texto.Length > 100) texto = texto[..100];
 
-            return Json(await _amigosRepositorio.BuscarAsync(usuarioId, texto));
+            try
+            {
+                return Json(await _amigosRepositorio.BuscarAsync(usuarioId, texto));
+            }
+            catch (SqlException ex)
+            {
+                return ErrorBaseDatos(ex);
+            }
         }
 
         // POST /Amigos/Seguir   (seguir, dejar de seguir o cancelar solicitud)
@@ -78,7 +95,14 @@ namespace Mapiticos.Controllers
             var usuarioId = UsuarioActualId();
             if (usuarioId == null) return Challenge();
 
-            return Json(await _amigosRepositorio.ListarSolicitudesAsync(usuarioId));
+            try
+            {
+                return Json(await _amigosRepositorio.ListarSolicitudesAsync(usuarioId));
+            }
+            catch (SqlException ex)
+            {
+                return ErrorBaseDatos(ex);
+            }
         }
 
         // POST /Amigos/ResponderSolicitud

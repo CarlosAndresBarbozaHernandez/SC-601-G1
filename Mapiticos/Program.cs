@@ -66,6 +66,19 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// El registro de Identity (en inglés y sin @usuario) se reemplaza por el de la
+// página de inicio, que sí pide el @usuario. Cualquier link viejo cae ahí.
+app.Use(async (contexto, siguiente) =>
+{
+    if (contexto.Request.Path.StartsWithSegments("/Identity/Account/Register"))
+    {
+        contexto.Response.Redirect("/#registro");
+        return;
+    }
+    await siguiente();
+});
+
 app.UseStaticFiles();
 
 app.UseRouting();

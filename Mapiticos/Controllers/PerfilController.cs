@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Mapiticos.Filtros;
 using Mapiticos.Models.ViewModels;
 using Mapiticos.Repositorios;
 using Microsoft.AspNetCore.Mvc;
@@ -65,6 +66,59 @@ namespace Mapiticos.Controllers
 
             TempData["Mensaje"] = "¡Listo! Tu perfil se actualizó.";
             return RedirectToAction(nameof(Index));
+        }
+
+        // ===== Elegir @usuario (cuentas nuevas que todavía no tienen uno) =====
+        // El filtro RequiereNombreUsuarioFiltro manda aquí a quien no tiene @usuario.
+        // [SinNombreUsuarioRequerido] evita que el filtro redirija en un ciclo infinito.
+
+        [HttpGet]
+        [SinNombreUsuarioRequerido]
+        public async Task<IActionResult> ElegirUsuario()
+        {
+            var usuarioId = UsuarioActualId();
+            if (usuarioId == null) return Challenge();
+
+            // Si ya tiene @usuario, no tiene nada que hacer aquí
+            if (await _perfilRepositorio.ObtenerNombreUsuarioAsync(usuarioId) != null)
+                return RedirectToAction("Index", "Feed");
+
+            return View(new ElegirUsuarioViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SinNombreUsuarioRequerido]
+        public async Task<IActionResult> ElegirUsuario(ElegirUsuarioViewModel modelo)
+        {
+            var usuarioId = UsuarioActualId();
+            if (usuarioId == null) return Challenge();
+
+            modelo.NombreUsuario = (modelo.NombreUsuario ?? "").Trim().TrimStart('@').ToLowerInvariant();
+            ModelState.Clear();
+            TryValidateModel(modelo);
+
+            if (ModelState.IsValid && ReglasNombreUsuario.EsReservado(modelo.NombreUsuario))
+            {
+                ModelState.AddModelError(nameof(modelo.NombreUsuario), "Ese nombre está reservado. Probá con otro.");
+            }
+
+            if (ModelState.IsValid &&
+                !await _perfilRepositorio.NombreUsuarioDisponibleAsync(modelo.NombreUsuario, usuarioId))
+            {
+                ModelState.AddModelError(nameof(modelo.NombreUsuario), "Ese @usuario ya lo tiene otra persona.");
+            }
+
+            if (!ModelState.IsValid) return View(modelo);
+
+            // Por si dos personas eligen el mismo nombre al mismo tiempo
+            if (!await _perfilRepositorio.AsignarNombreUsuarioAsync(usuarioId, modelo.NombreUsuario))
+            {
+                ModelState.AddModelError(nameof(modelo.NombreUsuario), "Ese @usuario ya lo tiene otra persona.");
+                return View(modelo);
+            }
+
+            return RedirectToAction("Index", "Feed");
         }
     }
 }

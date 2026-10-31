@@ -5,6 +5,15 @@
 }
 
 <section class="elegir-usuario">
+    @* "Volver al inicio": como la sesión ya está abierta, primero se cierra
+       (si no, el inicio la mandaría otra vez aquí) *@
+    <form asp-area="Identity" asp-page="/Account/Logout"
+          asp-route-returnUrl="@Url.Action("Index", "Home")" method="post" class="elegir-volver">
+        <button type="submit" class="boton-volver-inicio">
+            <i class="ti ti-arrow-left" aria-hidden="true"></i> Volver al inicio
+        </button>
+    </form>
+
     <img src="~/img/logo.png" alt="Mapiticos" class="elegir-logo" />
 
     <h1>Elegí tu @@usuario</h1>

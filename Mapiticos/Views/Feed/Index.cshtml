@@ -9,8 +9,10 @@
         <img src="~/img/logo.png" alt="Mapiticos" class="logo" />
 
         <div class="encabezado-acciones">
-            <button type="button" class="boton-icono" aria-label="Buscar personas">
+            <button type="button" class="boton-icono bp-punto-contenedor" aria-label="Buscar personas"
+                    onclick="abrirBuscador()">
                 <i class="ti ti-search"></i>
+                <span id="bpPunto" class="bp-punto" hidden></span>
             </button>
 
             <form asp-area="Identity"
@@ -37,7 +39,8 @@
         <article class="publicacion">
 
             <div class="publicacion-encabezado">
-                <div class="avatar" aria-hidden="true">
+                <a asp-controller="Amigos" asp-action="Perfil" asp-route-id="@p.NombreUsuario"
+                   class="avatar link-perfil" aria-label="Ver perfil de @p.NombreUsuario">
 
                     @if (!string.IsNullOrEmpty(p.AvatarUrl))
                     {
@@ -48,10 +51,12 @@
                         @p.Inicial
                     }
 
-                </div>
+                </a>
 
                 <div class="publicacion-autor">
-                    <strong>@p.NombreUsuario</strong>
+                    <a asp-controller="Amigos" asp-action="Perfil" asp-route-id="@p.NombreUsuario" class="link-perfil">
+                        <strong>@p.NombreUsuario</strong>
+                    </a>
 
                     <span class="publicacion-lugar">
                         <i class="ti ti-map-pin"></i>@p.Lugar
@@ -122,7 +127,6 @@
             </div>
 
             <div class="publicacion-texto">
-
                 <strong id="likes-@p.AventuraId">
                     @p.CantidadLikes me gusta
                 </strong>
@@ -361,4 +365,478 @@
             boton.textContent = "Publicar";
         }
     }
+</script>
+
+<!-- ===================================================================
+     BUSCAR PERSONAS (todo en este archivo: HTML + estilos + script)
+     =================================================================== -->
+<style>
+    .bp-fondo {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.45);
+        z-index: 99999;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 60px 16px 16px;
+    }
+
+        .bp-fondo.abierto {
+            display: flex;
+        }
+
+    .bp-modal {
+        background: #fff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 460px;
+        max-height: calc(100vh - 80px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 10px 35px rgba(0,0,0,.15);
+    }
+
+    .bp-cabeza {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px 8px;
+    }
+
+        .bp-cabeza h3 {
+            margin: 0;
+            font-size: 21px;
+            color: #22392B;
+            font-family: 'Bricolage Grotesque', sans-serif;
+        }
+
+    .bp-cerrar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: none;
+        background: #F3F6EC;
+        font-size: 18px;
+    }
+
+    .bp-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 4px 20px 0;
+        border-bottom: 1px solid #eef2ea;
+    }
+
+    .bp-tab {
+        border: none;
+        background: none;
+        padding: 10px 12px;
+        font-weight: 600;
+        color: #4F5D48;
+        border-bottom: 2px solid transparent;
+    }
+
+        .bp-tab.activa {
+            color: #22392B;
+            border-bottom-color: #22392B;
+        }
+
+    .bp-globito {
+        background: #7B3F8C;
+        color: #fff;
+        border-radius: 999px;
+        font-size: 11px;
+        padding: 1px 6px;
+        margin-left: 4px;
+    }
+
+    .bp-input {
+        margin: 14px 20px 6px;
+        width: calc(100% - 40px);
+        padding: 11px 16px;
+        border: 1px solid #d5dfce;
+        border-radius: 999px;
+        background: #F3F6EC;
+        color: #22392B;
+        outline: none;
+        font-family: inherit;
+    }
+
+        .bp-input:focus {
+            border-color: #4E6B3A;
+        }
+
+    .bp-lista {
+        overflow-y: auto;
+        padding: 6px 12px 14px;
+        max-height: 60vh;
+    }
+
+    .bp-fila {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 12px;
+    }
+
+        .bp-fila:hover {
+            background: #F3F6EC;
+        }
+
+    .bp-persona {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #22392B;
+        text-decoration: none;
+    }
+
+    .bp-avatar {
+        flex: 0 0 auto;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #DCE6CB;
+        color: #22392B;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        object-fit: cover;
+    }
+
+    .bp-nombre {
+        font-weight: 600;
+        font-size: 14.5px;
+    }
+
+    .bp-usuario {
+        font-size: 13px;
+        color: #758274;
+    }
+
+    .bp-btn, .bp-btn-sec {
+        flex: 0 0 auto;
+        border-radius: 10px;
+        padding: 7px 16px;
+        font-weight: 600;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .bp-btn {
+        background: #22392B;
+        color: #fff;
+        border: 1px solid #22392B;
+    }
+
+    .bp-btn-sec {
+        background: #F3F6EC;
+        color: #22392B;
+        border: 1px solid #d5dfce;
+    }
+
+    .bp-msj {
+        text-align: center;
+        color: #758274;
+        padding: 24px 10px;
+        margin: 0;
+    }
+
+        .bp-msj.error {
+            color: #a33b3b;
+        }
+
+    .bp-punto-contenedor {
+        position: relative;
+    }
+
+    .bp-punto {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #7B3F8C;
+        border: 2px solid #fff;
+    }
+
+    .link-perfil {
+        color: inherit;
+        text-decoration: none;
+    }
+
+        .link-perfil:hover strong {
+            text-decoration: underline;
+        }
+
+    .avatar.link-perfil, .avatar.link-perfil:hover {
+        color: #fff;
+    }
+</style>
+
+<div id="bpFondo" class="bp-fondo">
+    <div class="bp-modal" role="dialog" aria-modal="true" aria-labelledby="bpTitulo">
+        <div class="bp-cabeza">
+            <h3 id="bpTitulo">Personas</h3>
+            <button type="button" class="bp-cerrar" onclick="cerrarBuscador()" aria-label="Cerrar">✕</button>
+        </div>
+
+        <div class="bp-tabs">
+            <button type="button" class="bp-tab activa" id="bpTabBuscar" onclick="mostrarPestanaBuscador('buscar')">Buscar</button>
+            <button type="button" class="bp-tab" id="bpTabSolicitudes" onclick="mostrarPestanaBuscador('solicitudes')">
+                Solicitudes<span id="bpContador" class="bp-globito" hidden></span>
+            </button>
+        </div>
+
+        <div id="bpPanelBuscar">
+            <input id="bpTexto" class="bp-input" type="search" autocomplete="off"
+                   placeholder="Buscar por @@usuario o nombre" aria-label="Buscar personas" />
+            <div id="bpResultados" class="bp-lista"><p class="bp-msj">Escribí al menos 2 letras.</p></div>
+        </div>
+
+        <div id="bpPanelSolicitudes" hidden>
+            <div id="bpSolicitudes" class="bp-lista"><p class="bp-msj">Cargando...</p></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const URL_BUSCAR = '@Url.Action("Buscar", "Amigos")';
+        const URL_SEGUIR = '@Url.Action("Seguir", "Amigos")';
+        const URL_SOLICITUDES = '@Url.Action("Solicitudes", "Amigos")';
+        const URL_RESPONDER = '@Url.Action("ResponderSolicitud", "Amigos")';
+        const URL_PERFIL = '@Url.Action("Perfil", "Amigos")';
+
+        const fondo = document.getElementById('bpFondo');
+        const input = document.getElementById('bpTexto');
+        const resultados = document.getElementById('bpResultados');
+        const solicitudes = document.getElementById('bpSolicitudes');
+        const contador = document.getElementById('bpContador');
+
+        function token() {
+            return document.querySelector('#formLike input[name="__RequestVerificationToken"]').value;
+        }
+
+        function mensaje(contenedor, texto, esError) {
+            contenedor.innerHTML = '';
+            const p = document.createElement('p');
+            p.className = 'bp-msj' + (esError ? ' error' : '');
+            p.textContent = texto;
+            contenedor.appendChild(p);
+        }
+
+        // Convierte cualquier falla en un mensaje que diga QUÉ falta
+        async function textoDeError(respuesta) {
+            try {
+                const datos = await respuesta.json();
+                if (datos && datos.mensaje) return datos.mensaje;
+            } catch { }
+            if (respuesta.status === 404) return 'No existe /Amigos/Buscar: falta Controllers/AmigosController.cs o recompilar.';
+            if (respuesta.status === 500) return 'Error del servidor (500): revisá que corriste 13.Amigos.sql y que Program.cs tiene AddScoped<IAmigosRepositorio, AmigosRepositorio>().';
+            return 'Error ' + respuesta.status + ' al buscar.';
+        }
+
+        function post(url, datos) {
+            datos.__RequestVerificationToken = token();
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(datos)
+            });
+        }
+
+        function filaPersona(persona) {
+            const fila = document.createElement('div');
+            fila.className = 'bp-fila';
+
+            const link = document.createElement('a');
+            link.className = 'bp-persona';
+            link.href = URL_PERFIL + '/' + encodeURIComponent(persona.nombreUsuario);
+
+            let avatar;
+            if (persona.avatarUrl) {
+                avatar = document.createElement('img');
+                avatar.src = persona.avatarUrl;
+                avatar.alt = '';
+            } else {
+                avatar = document.createElement('span');
+                avatar.textContent = (persona.nombreMostrar || '?').charAt(0).toUpperCase();
+            }
+            avatar.className = 'bp-avatar';
+
+            const textos = document.createElement('div');
+            const nombre = document.createElement('div');
+            nombre.className = 'bp-nombre';
+            nombre.textContent = persona.nombreMostrar + (persona.esPrivada ? ' 🔒' : '');
+            const usuario = document.createElement('div');
+            usuario.className = 'bp-usuario';
+            usuario.textContent = '@@' + persona.nombreUsuario + (persona.meSigue ? ' · Te sigue' : '');
+            textos.append(nombre, usuario);
+
+            link.append(avatar, textos);
+            fila.appendChild(link);
+            return fila;
+        }
+
+        function pintarBoton(boton, estado, meSigue) {
+            boton.dataset.estado = estado;
+            boton.className = estado === 'Ninguno' ? 'bp-btn' : 'bp-btn-sec';
+            boton.textContent = estado === 'Aceptado' ? 'Siguiendo'
+                : estado === 'Pendiente' ? 'Solicitado'
+                : (meSigue ? 'Seguir también' : 'Seguir');
+        }
+
+        // ---------- Buscar ----------
+        let temporizador = null;
+        let numeroBusqueda = 0;
+
+        async function buscar() {
+            const texto = input.value.trim();
+            if (texto.replace(/^@@/, '').length < 2) {
+                mensaje(resultados, 'Escribí al menos 2 letras.');
+                return;
+            }
+
+            const numero = ++numeroBusqueda;
+            mensaje(resultados, 'Buscando...');
+
+            try {
+                const respuesta = await fetch(URL_BUSCAR + '?texto=' + encodeURIComponent(texto));
+                if (numero !== numeroBusqueda) return;
+
+                if (!respuesta.ok) {
+                    mensaje(resultados, await textoDeError(respuesta), true);
+                    return;
+                }
+
+                const personas = await respuesta.json();
+                resultados.innerHTML = '';
+
+                if (personas.length === 0) {
+                    mensaje(resultados, 'No encontramos a nadie. Probá con el @@usuario exacto (las cuentas sin @@usuario no aparecen).');
+                    return;
+                }
+
+                personas.forEach(function (persona) {
+                    const fila = filaPersona(persona);
+                    const boton = document.createElement('button');
+                    boton.type = 'button';
+                    pintarBoton(boton, persona.estadoSeguimiento, persona.meSigue);
+
+                    boton.addEventListener('click', async function () {
+                        if (boton.dataset.estado === 'Aceptado' && persona.esPrivada &&
+                            !confirm('Si dejás de seguir esta cuenta privada, vas a tener que volver a pedir permiso. ¿Continuar?')) {
+                            return;
+                        }
+                        boton.disabled = true;
+                        try {
+                            const r = await post(URL_SEGUIR, { nombreUsuario: persona.nombreUsuario });
+                            if (r.ok) {
+                                const res = await r.json();
+                                pintarBoton(boton, res.estadoSeguimiento, persona.meSigue);
+                            } else {
+                                alert(await textoDeError(r));
+                            }
+                        } finally {
+                            boton.disabled = false;
+                        }
+                    });
+
+                    fila.appendChild(boton);
+                    resultados.appendChild(fila);
+                });
+            } catch (e) {
+                mensaje(resultados, 'No se pudo conectar con el servidor.', true);
+            }
+        }
+
+        input.addEventListener('input', function () {
+            clearTimeout(temporizador);
+            temporizador = setTimeout(buscar, 300);
+        });
+
+        // ---------- Solicitudes ----------
+        function mostrarContador(cantidad) {
+            contador.textContent = cantidad;
+            contador.hidden = cantidad === 0;
+            const punto = document.getElementById('bpPunto');
+            if (punto) punto.hidden = cantidad === 0;
+        }
+
+        async function cargarSolicitudes() {
+            try {
+                const respuesta = await fetch(URL_SOLICITUDES);
+                if (!respuesta.ok) {
+                    mensaje(solicitudes, await textoDeError(respuesta), true);
+                    return;
+                }
+                const lista = await respuesta.json();
+                mostrarContador(lista.length);
+
+                solicitudes.innerHTML = '';
+                if (lista.length === 0) {
+                    mensaje(solicitudes, 'No tenés solicitudes pendientes.');
+                    return;
+                }
+
+                lista.forEach(function (s) {
+                    const fila = filaPersona(s);
+                    [['Aceptar', true, 'bp-btn'], ['Rechazar', false, 'bp-btn-sec']].forEach(function (op) {
+                        const b = document.createElement('button');
+                        b.type = 'button';
+                        b.className = op[2];
+                        b.textContent = op[0];
+                        b.style.marginLeft = '6px';
+                        b.addEventListener('click', async function () {
+                            b.disabled = true;
+                            const r = await post(URL_RESPONDER, { nombreUsuario: s.nombreUsuario, acepta: op[1] });
+                            if (r.ok) cargarSolicitudes();
+                            else { alert(await textoDeError(r)); b.disabled = false; }
+                        });
+                        fila.appendChild(b);
+                    });
+                    solicitudes.appendChild(fila);
+                });
+            } catch {
+                mensaje(solicitudes, 'No se pudo conectar con el servidor.', true);
+            }
+        }
+
+        // ---------- Abrir / cerrar / pestañas (las usa el HTML) ----------
+        window.abrirBuscador = function () {
+            fondo.classList.add('abierto');
+            window.mostrarPestanaBuscador('buscar');
+        };
+
+        window.cerrarBuscador = function () {
+            fondo.classList.remove('abierto');
+        };
+
+        window.mostrarPestanaBuscador = function (nombre) {
+            const esBuscar = nombre === 'buscar';
+            document.getElementById('bpPanelBuscar').hidden = !esBuscar;
+            document.getElementById('bpPanelSolicitudes').hidden = esBuscar;
+            document.getElementById('bpTabBuscar').classList.toggle('activa', esBuscar);
+            document.getElementById('bpTabSolicitudes').classList.toggle('activa', !esBuscar);
+            if (esBuscar) input.focus();
+            else cargarSolicitudes();
+        };
+
+        fondo.addEventListener('click', function (e) {
+            if (e.target === fondo) window.cerrarBuscador();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') window.cerrarBuscador();
+        });
+
+        cargarSolicitudes();   // para el puntito de la lupa
+    })();
 </script>
