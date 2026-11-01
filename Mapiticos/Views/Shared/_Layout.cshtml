@@ -47,7 +47,7 @@
                    class="nav-item @(controlador == "Notificaciones" ? "activo" : "")"
                    aria-current="@(controlador == "Notificaciones" ? "page" : null)">
                     <span class="nav-icono"><i class="ti ti-bell"></i></span>
-                    <span class="nav-punto" aria-label="Avisos sin leer"></span>Avisos
+                    @await Component.InvokeAsync("PuntoAvisos")Avisos
                 </a>
                 <a asp-controller="Perfil" asp-action="Index"
                    class="nav-item @(controlador == "Perfil" ? "activo" : "")"

@@ -58,5 +58,16 @@ namespace Mapiticos.Repositorios
             await conexion.OpenAsync();
             await comando.ExecuteNonQueryAsync();
         }
+
+        // ===== Cuántos faltan por leer =====
+        public async Task<int> ContarSinLeerAsync(string usuarioId)
+        {
+            using var conexion = new SqlConnection(_cadenaConexion);
+            using var comando = CrearComando(conexion, "sp_Notificaciones_ContarSinLeer");
+            comando.Parameters.Add("@UsuarioId", SqlDbType.NVarChar, 450).Value = usuarioId;
+
+            await conexion.OpenAsync();
+            return (int)(await comando.ExecuteScalarAsync() ?? 0);
+        }
     }
 }

@@ -61,10 +61,28 @@ GO
 
 
 /* =====================================================================
-   3. VERIFICACION (deben salir 2 procedimientos)
+   3. CONTAR MIS AVISOS SIN LEER (para el punto del menu)
+   ===================================================================== */
+
+CREATE OR ALTER PROCEDURE dbo.sp_Notificaciones_ContarSinLeer
+    @UsuarioId NVARCHAR(450)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT COUNT(*) AS CantidadSinLeer
+    FROM dbo.Notificaciones
+    WHERE UsuarioDestinoId = @UsuarioId AND Leida = 0;
+END;
+GO
+
+
+/* =====================================================================
+   4. VERIFICACION (deben salir 3 procedimientos)
    ===================================================================== */
 
 SELECT name AS Procedimiento FROM sys.procedures
-WHERE name IN ('sp_Notificaciones_Listar', 'sp_Notificaciones_MarcarLeidas')
+WHERE name IN ('sp_Notificaciones_Listar', 'sp_Notificaciones_MarcarLeidas',
+               'sp_Notificaciones_ContarSinLeer')
 ORDER BY name;
 GO

@@ -8,5 +8,7 @@ namespace Mapiticos.Repositorios
         Task<List<NotificacionViewModel>> ListarAsync(string usuarioId);
 
         Task MarcarLeidasAsync(string usuarioId);
+
+        Task<int> ContarSinLeerAsync(string usuarioId);
     }
 }
