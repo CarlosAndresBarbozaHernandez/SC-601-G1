@@ -241,6 +241,7 @@
 /* --- Perfil de otra persona --- */
 .am-chip {
     display: inline-block;
+    align-self: flex-start;
     background: var(--salvia-clara);
     color: var(--bosque);
     border-radius: 999px;
