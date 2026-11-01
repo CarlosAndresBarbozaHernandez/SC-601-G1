@@ -83,49 +83,7 @@ GO
    no queda la aventura a medias.
    ========================================================= */
 
-CREATE OR ALTER PROCEDURE dbo.sp_Aventura_Crear
-    @UsuarioId   NVARCHAR(450),
-    @ProvinciaId INT,
-    @Titulo      NVARCHAR(100),
-    @Descripcion NVARCHAR(1000) = NULL,
-    @Latitud     DECIMAL(9,6),
-    @Longitud    DECIMAL(9,6),
-    @EsPublica   BIT,
-    @EtiquetaIds NVARCHAR(200) = NULL      -- ej: '1,4,5'
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE @AventuraId INT;
-
-    BEGIN TRY
-        BEGIN TRANSACTION;
-
-        INSERT INTO dbo.Aventuras
-            (UsuarioId, ProvinciaId, Titulo, Descripcion, Latitud, Longitud, EsPublica)
-        VALUES
-            (@UsuarioId, @ProvinciaId, @Titulo, @Descripcion, @Latitud, @Longitud, @EsPublica);
-
-        SET @AventuraId = SCOPE_IDENTITY();
-
-        IF @EtiquetaIds IS NOT NULL AND LTRIM(RTRIM(@EtiquetaIds)) <> ''
-        BEGIN
-            INSERT INTO dbo.AventuraEtiquetas (AventuraId, EtiquetaId)
-            SELECT DISTINCT @AventuraId, TRY_CAST(value AS INT)
-            FROM STRING_SPLIT(@EtiquetaIds, ',')
-            WHERE TRY_CAST(value AS INT) IS NOT NULL;
-        END;
-
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
-        THROW;   -- el error le llega a C#
-    END CATCH;
-
-    SELECT @AventuraId AS AventuraId;
-END;
-GO
+-- sp_Aventura_Crear esta en 05.Lugares.sql (version mas nueva).
 
 
 /* =========================================================

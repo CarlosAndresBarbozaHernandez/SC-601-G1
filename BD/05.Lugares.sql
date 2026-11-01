@@ -236,34 +236,7 @@ GO
    Un lugar solo sale si el usuario puede ver al menos una aventura ahi.
    ===================================================================== */
 
-CREATE OR ALTER PROCEDURE dbo.sp_Mapa_ListarLugares
-    @UsuarioId NVARCHAR(450)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- 1) Los lugares
-    SELECT
-        l.LugarId,
-        l.Nombre,
-        pr.Nombre AS Provincia,
-        l.Latitud,
-        l.Longitud,
-        COUNT(*) AS CantidadAventuras,
-        CAST(MAX(CASE WHEN v.UsuarioId = @UsuarioId THEN 1 ELSE 0 END) AS BIT) AS TengoAventura
-    FROM dbo.fn_AventurasVisibles(@UsuarioId) AS v
-    INNER JOIN dbo.Lugares    AS l  ON l.LugarId = v.LugarId
-    INNER JOIN dbo.Provincias AS pr ON pr.ProvinciaId = l.ProvinciaId
-    GROUP BY l.LugarId, l.Nombre, pr.Nombre, l.Latitud, l.Longitud
-    ORDER BY l.LugarId DESC;
-
-    -- 2) Sus etiquetas fijas (para los filtros del mapa)
-    SELECT le.LugarId, e.EtiquetaId, e.Nombre, e.Icono
-    FROM dbo.LugarEtiquetas AS le
-    INNER JOIN dbo.Etiquetas AS e ON e.EtiquetaId = le.EtiquetaId
-    WHERE le.LugarId IN (SELECT LugarId FROM dbo.fn_AventurasVisibles(@UsuarioId));
-END;
-GO
+-- sp_Mapa_ListarLugares esta en 06.Lugar Favoritos.sql (version mas nueva).
 
 
 /* =====================================================================
@@ -273,87 +246,7 @@ GO
    y la app responde "no encontrado" (asi no se espia por la URL).
    ===================================================================== */
 
-CREATE OR ALTER PROCEDURE dbo.sp_Lugar_Obtener
-    @LugarId   INT,
-    @UsuarioId NVARCHAR(450),
-    @Filtro    NVARCHAR(10) = 'todas'
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT v.AventuraId, v.UsuarioId
-    INTO #Visibles
-    FROM dbo.fn_AventurasVisibles(@UsuarioId) AS v
-    WHERE v.LugarId = @LugarId;
-
-    DECLARE @PuedeVer BIT = CASE WHEN EXISTS (SELECT 1 FROM #Visibles) THEN 1 ELSE 0 END;
-
-    -- 1) El lugar
-    SELECT
-        l.LugarId,
-        l.Nombre,
-        pr.Nombre AS Provincia,
-        l.Latitud,
-        l.Longitud,
-        CAST(CASE WHEN EXISTS (SELECT 1 FROM dbo.LugarFavoritos AS f
-                               WHERE f.LugarId = l.LugarId AND f.UsuarioId = @UsuarioId)
-             THEN 1 ELSE 0 END AS BIT) AS EsFavorito,
-        (SELECT COUNT(*) FROM dbo.LugarFavoritos AS f WHERE f.LugarId = l.LugarId) AS CantidadFavoritos
-    FROM dbo.Lugares AS l
-    INNER JOIN dbo.Provincias AS pr ON pr.ProvinciaId = l.ProvinciaId
-    WHERE l.LugarId = @LugarId AND @PuedeVer = 1;
-
-    -- 2) Etiquetas fijas
-    SELECT e.EtiquetaId, e.Nombre, e.Icono
-    FROM dbo.LugarEtiquetas AS le
-    INNER JOIN dbo.Etiquetas AS e ON e.EtiquetaId = le.EtiquetaId
-    WHERE le.LugarId = @LugarId AND @PuedeVer = 1
-    ORDER BY e.Nombre;
-
-    -- Pestana "Amigos": solo personas que sigo con solicitud aceptada
-    IF @Filtro = 'amigos'
-    BEGIN
-        DELETE v
-        FROM #Visibles AS v
-        WHERE NOT EXISTS (SELECT 1 FROM dbo.Seguimientos AS s
-                          WHERE s.SeguidorId = @UsuarioId
-                            AND s.SeguidoId  = v.UsuarioId
-                            AND s.Estado     = 'Aceptado');
-    END;
-
-    -- 3) Las aventuras
-    SELECT
-        a.AventuraId,
-        a.Descripcion,
-        a.FechaPublicacion,
-        ISNULL(p.NombreUsuario, N'usuario') AS NombreUsuario,
-        ISNULL(p.NombreMostrar, ISNULL(p.NombreUsuario, N'usuario')) AS NombreMostrar,
-        p.AvatarUrl,
-        CAST(CASE WHEN a.UsuarioId = @UsuarioId THEN 1 ELSE 0 END AS BIT) AS EsMia,
-        (SELECT COUNT(*) FROM dbo.Likes AS lk WHERE lk.AventuraId = a.AventuraId) AS CantidadLikes,
-        CAST(CASE WHEN EXISTS (SELECT 1 FROM dbo.Likes AS lk
-                               WHERE lk.AventuraId = a.AventuraId AND lk.UsuarioId = @UsuarioId)
-             THEN 1 ELSE 0 END AS BIT) AS MeGusta,
-        (SELECT COUNT(*) FROM dbo.Comentarios AS c WHERE c.AventuraId = a.AventuraId) AS CantidadComentarios
-    FROM dbo.Aventuras AS a
-    INNER JOIN #Visibles AS v ON v.AventuraId = a.AventuraId
-    LEFT JOIN dbo.Perfiles AS p ON p.UsuarioId = a.UsuarioId
-    ORDER BY a.FechaPublicacion DESC;
-
-    -- 4) Fotos de esas aventuras
-    SELECT f.AventuraId, f.Url
-    FROM dbo.FotosAventura AS f
-    INNER JOIN #Visibles AS v ON v.AventuraId = f.AventuraId
-    ORDER BY f.AventuraId, f.Orden;
-
-    -- 5) Etiquetas personales de esas aventuras
-    SELECT ae.AventuraId, e.Nombre, e.Icono
-    FROM dbo.AventuraEtiquetas AS ae
-    INNER JOIN #Visibles AS v ON v.AventuraId = ae.AventuraId
-    INNER JOIN dbo.Etiquetas AS e ON e.EtiquetaId = ae.EtiquetaId
-    ORDER BY e.Nombre;
-END;
-GO
+-- sp_Lugar_Obtener esta en 08.Fotos.sql (version mas nueva).
 
 
 /* =====================================================================
@@ -361,28 +254,7 @@ GO
    Si no se puede ver, no devuelve nada y la app responde "no encontrado".
    ===================================================================== */
 
-CREATE OR ALTER PROCEDURE dbo.sp_Like_Alternar
-    @UsuarioId  NVARCHAR(450),
-    @AventuraId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF NOT EXISTS (SELECT 1 FROM dbo.fn_AventurasVisibles(@UsuarioId) WHERE AventuraId = @AventuraId)
-        RETURN;
-
-    IF EXISTS (SELECT 1 FROM dbo.Likes WHERE UsuarioId = @UsuarioId AND AventuraId = @AventuraId)
-        DELETE FROM dbo.Likes WHERE UsuarioId = @UsuarioId AND AventuraId = @AventuraId;
-    ELSE
-        INSERT INTO dbo.Likes (UsuarioId, AventuraId) VALUES (@UsuarioId, @AventuraId);
-
-    SELECT
-        CAST(CASE WHEN EXISTS (SELECT 1 FROM dbo.Likes
-                               WHERE UsuarioId = @UsuarioId AND AventuraId = @AventuraId)
-             THEN 1 ELSE 0 END AS BIT) AS MeGusta,
-        (SELECT COUNT(*) FROM dbo.Likes WHERE AventuraId = @AventuraId) AS CantidadLikes;
-END;
-GO
+-- sp_Like_Alternar esta en 15.Avisos.sql, porque el like tambien deja un aviso.
 
 
 /* =====================================================================

@@ -14,13 +14,7 @@ GO
 -- ---------- Etiquetas ----------
 
 -- Catalogo de etiquetas (para filtros del mapa y al crear aventuras)
-CREATE OR ALTER PROCEDURE sp_Etiquetas_Listar
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT EtiquetaId, Nombre, Icono FROM Etiquetas ORDER BY Nombre;
-END
-GO
+-- sp_Etiquetas_Listar esta en 04.Mapa.sql (version mas nueva).
 
 -- ---------- Perfil ----------
 
