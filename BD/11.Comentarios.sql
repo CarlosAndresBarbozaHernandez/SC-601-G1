@@ -2,7 +2,7 @@
 USE MapiticosDB;
 GO
 
--- sp_Comentario_Agregar esta en 15.Avisos.sql, porque el comentario tambien deja un aviso.
+-- sp_Comentario_Agregar esta en 14.Avisos.sql, porque el comentario tambien deja un aviso.
 
 -- ===== Listar comentarios =====
 CREATE OR ALTER PROCEDURE dbo.sp_Comentarios_Listar

@@ -28,7 +28,7 @@ namespace Mapiticos.ViewComponents
             catch (SqlException)
             {
                 // El menú sale en todas las páginas: si falla el punto
-                // (por ejemplo, falta correr 15.Avisos.sql), la app sigue funcionando
+                // (por ejemplo, falta correr 14.Avisos.sql), la app sigue funcionando
                 return Content("");
             }
         }

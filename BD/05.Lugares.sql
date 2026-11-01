@@ -254,7 +254,7 @@ GO
    Si no se puede ver, no devuelve nada y la app responde "no encontrado".
    ===================================================================== */
 
--- sp_Like_Alternar esta en 15.Avisos.sql, porque el like tambien deja un aviso.
+-- sp_Like_Alternar esta en 14.Avisos.sql, porque el like tambien deja un aviso.
 
 
 /* =====================================================================

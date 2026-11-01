@@ -2,7 +2,7 @@ USE MapiticosDB;
 GO
 
 /* =====================================================================
-   MAPITICOS - 15 AVISOS
+   MAPITICOS - 14 AVISOS
    ---------------------------------------------------------------------
    Todo lo de Avisos esta en este script:
    - Listar los avisos que me llegaron (tabla Notificaciones).
