@@ -1,0 +1,61 @@
+@using Mapiticos.Models.ViewModels
+@model List<NotificacionViewModel>
+
+@{
+    ViewData["Title"] = "Avisos";
+}
+
+<div class="avisos">
+    <header class="encabezado">
+        <h1 class="avisos-titulo">Avisos</h1>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="vacio">
+            <p>Todavía no tenés avisos. Aquí vas a ver cuando alguien te siga.</p>
+        </div>
+    }
+
+    @foreach (var a in Model)
+    {
+        <article class="aviso @(a.Leida ? "" : "nuevo")">
+            <a asp-controller="Amigos" asp-action="Perfil" asp-route-id="@a.NombreUsuario"
+               class="avatar link-perfil" aria-label="Ver perfil de @a.NombreUsuario">
+
+                @if (!string.IsNullOrEmpty(a.AvatarUrl))
+                {
+                    <img src="@a.AvatarUrl" alt="" />
+                }
+                else
+                {
+                    @a.Inicial
+                }
+
+            </a>
+
+            <div class="aviso-cuerpo">
+                <p class="aviso-texto">
+                    <a asp-controller="Amigos" asp-action="Perfil" asp-route-id="@a.NombreUsuario" class="link-perfil">
+                        <strong>@a.NombreMostrar</strong>
+                    </a>
+                    @a.Texto
+                    @if (a.LugarId != null)
+                    {
+                        <text>en </text>
+                        <a asp-controller="Lugares" asp-action="Ver" asp-route-id="@a.LugarId">@a.Lugar</a>
+                    }
+                </p>
+
+                @if (a.Tipo == TiposNotificacion.SolicitudSeguimiento)
+                {
+                    <a asp-controller="Feed" asp-action="Index" class="aviso-accion">Responder en el Feed</a>
+                }
+
+                <span class="tiempo">@a.TiempoTranscurrido</span>
+            </div>
+
+            <i class="ti @a.Icono aviso-icono" aria-hidden="true"></i>
+        </article>
+    }
+</div>

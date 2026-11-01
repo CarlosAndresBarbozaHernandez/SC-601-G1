@@ -2064,3 +2064,57 @@ button {
     font-size: 12px;
     font-weight: 700;
 }
+/* ===== Avisos ===== */
+.avisos {
+    width: 100%;
+}
+
+.avisos-titulo {
+    margin: 0;
+    font-family: var(--fuente-titulos);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--bosque);
+}
+
+.aviso {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: var(--blanco);
+    border-left: 4px solid transparent;
+}
+
+    .aviso.nuevo {
+        border-left-color: var(--guaria);
+    }
+
+.aviso-cuerpo {
+    flex: 1;
+    min-width: 0;
+}
+
+.aviso-texto {
+    margin: 0;
+    color: var(--bosque);
+    overflow-wrap: anywhere;
+}
+
+    .aviso-texto a {
+        color: var(--bosque);
+    }
+
+.aviso-accion {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--guaria);
+}
+
+.aviso-icono {
+    flex-shrink: 0;
+    font-size: 20px;
+    color: var(--musgo);
+}
