@@ -66,3 +66,51 @@ BEGIN
         (SELECT COUNT(*) FROM dbo.Likes WHERE AventuraId = @AventuraId) AS CantidadLikes;
 END;
 GO
+
+
+/* =====================================================================
+   2. COMENTARIO - solo en aventuras que se pueden ver
+   ===================================================================== */
+
+CREATE OR ALTER PROCEDURE dbo.sp_Comentario_Agregar
+    @UsuarioId NVARCHAR(450),
+    @AventuraId INT,
+    @Texto NVARCHAR(500)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SET @Texto = LTRIM(RTRIM(@Texto));
+
+    IF @Texto IS NULL OR @Texto = ''
+        THROW 50001, 'El comentario no puede estar vacío.', 1;
+
+    -- Verificar que el usuario pueda ver la aventura
+    IF NOT EXISTS (
+        SELECT 1
+        FROM dbo.fn_AventurasVisibles(@UsuarioId)
+        WHERE AventuraId = @AventuraId
+    )
+        THROW 50002, 'La aventura no está disponible.', 1;
+
+    DECLARE @DuenoId NVARCHAR(450) =
+        (SELECT UsuarioId FROM dbo.Aventuras WHERE AventuraId = @AventuraId);
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        INSERT INTO dbo.Comentarios (AventuraId, UsuarioId, Texto)
+        VALUES (@AventuraId, @UsuarioId, @Texto);
+
+        IF @DuenoId <> @UsuarioId
+            INSERT INTO dbo.Notificaciones (UsuarioDestinoId, UsuarioOrigenId, Tipo, AventuraId)
+            VALUES (@DuenoId, @UsuarioId, 'Comentario', @AventuraId);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH;
+END;
+GO
