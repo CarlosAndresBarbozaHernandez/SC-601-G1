@@ -38,6 +38,7 @@ builder.Services.AddScoped<IMapaRepositorio, MapaRepositorio>();
 builder.Services.AddScoped<ILugarRepositorio, LugarRepositorio>();
 builder.Services.AddScoped<IEventoRepositorio, EventoRepositorio>();
 builder.Services.AddScoped<IAmigosRepositorio, AmigosRepositorio>();
+builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
 
 // Servicios
 builder.Services.AddScoped<IAlmacenFotos, AlmacenFotosLocal>();
