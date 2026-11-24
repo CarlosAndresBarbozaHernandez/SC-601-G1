@@ -13,5 +13,9 @@ namespace Mapiticos.Repositorios
         Task<string?> ObtenerNombreUsuarioAsync(string usuarioId);
         Task<bool> NombreUsuarioDisponibleAsync(string nombreUsuario, string usuarioId);
         Task<bool> AsignarNombreUsuarioAsync(string usuarioId, string nombreUsuario);
+
+        // Modo (tema) de la app
+        Task<string?> ObtenerTemaAsync(string usuarioId);
+        Task GuardarTemaAsync(string usuarioId, string tema);
     }
 }

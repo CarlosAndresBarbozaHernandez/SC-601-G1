@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@inject Mapiticos.Servicios.ITemaServicio TemaServicio
+@{
+    var temaActual = await TemaServicio.ObtenerTemaActualAsync();
+}
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -10,9 +14,10 @@
     <link rel="stylesheet" href="~/css/Mapiticos.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/eventos.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/amigos.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/temas.css" asp-append-version="true" />
     @await RenderSectionAsync("Estilos", required: false)
 </head>
-<body>
+<body data-tema="@temaActual">
     @{
         var controlador = ViewContext.RouteData.Values["controller"]?.ToString();
         var conSesion = User.Identity?.IsAuthenticated == true && ViewData["OcultarMenu"] as bool? != true;
@@ -26,7 +31,7 @@
         {
             <nav class="nav-inferior" aria-label="Navegación principal">
                 <a asp-controller="Feed" asp-action="Index" class="nav-logo">
-                    <img src="~/img/logo.png" alt="Mapiticos, ir al inicio" />
+                    <partial name="_Logo" model="temaActual" />
                 </a>
                 <a asp-controller="Mapa" asp-action="Index"
                    class="nav-item @(controlador == "Mapa" ? "activo" : "")"

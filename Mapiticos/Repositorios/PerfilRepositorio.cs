@@ -168,5 +168,27 @@ namespace Mapiticos.Repositorios
                 return false;
             }
         }
+
+        // ===== Modo (tema) de la app =====
+        public async Task<string?> ObtenerTemaAsync(string usuarioId)
+        {
+            using var conexion = new SqlConnection(_cadenaConexion);
+            using var comando = CrearComando(conexion, "sp_Perfil_ObtenerTema");
+            comando.Parameters.Add("@UsuarioId", SqlDbType.NVarChar, 450).Value = usuarioId;
+
+            await conexion.OpenAsync();
+            return await comando.ExecuteScalarAsync() as string;
+        }
+
+        public async Task GuardarTemaAsync(string usuarioId, string tema)
+        {
+            using var conexion = new SqlConnection(_cadenaConexion);
+            using var comando = CrearComando(conexion, "sp_Perfil_GuardarTema");
+            comando.Parameters.Add("@UsuarioId", SqlDbType.NVarChar, 450).Value = usuarioId;
+            comando.Parameters.Add("@Tema", SqlDbType.NVarChar, 20).Value = tema;
+
+            await conexion.OpenAsync();
+            await comando.ExecuteNonQueryAsync();
+        }
     }
 }

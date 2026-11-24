@@ -1,0 +1,312 @@
+﻿
+/* ----- Variables del menú (valores del modo Claro, el original) ----- */
+:root {
+    --menu-fondo: var(--blanco);
+    --menu-texto: #5F6E57;
+    --menu-activo-fondo: var(--salvia-clara);
+    --menu-activo-texto: var(--bosque);
+    --menu-hover: var(--neblina);
+    --menu-borde: var(--borde);
+}
+
+/* ----- El menú usa esas variables ----- */
+.nav-inferior {
+    background: var(--menu-fondo);
+    border-color: var(--menu-borde);
+}
+
+.nav-item {
+    color: var(--menu-texto);
+}
+
+    .nav-item.activo {
+        color: var(--menu-activo-texto);
+    }
+
+        .nav-item.activo .nav-icono {
+            background: var(--menu-activo-fondo);
+        }
+
+.nav-punto {
+    border-color: var(--menu-fondo);
+}
+
+@media (min-width: 900px) {
+    .nav-inferior {
+        border-right: 1px solid var(--menu-borde);
+    }
+
+    .nav-item:hover {
+        background: var(--menu-hover);
+    }
+}
+
+/* ----- Logo en SVG ----- */
+.logo-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.nav-logo .logo-svg {
+    width: 170px;
+}
+
+/* =====================================================================
+   LOS MODOS
+   ===================================================================== */
+
+/* ----- Bosque (predeterminado): la app igual, con el menú verde oscuro del logo ----- */
+[data-tema="bosque"] {
+    --menu-fondo: #22392B;
+    --menu-texto: #DCE6CB;
+    --menu-activo-fondo: #4E6B3A;
+    --menu-activo-texto: #FFFFFF;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-borde: #22392B;
+}
+
+/* ----- Claro: el diseño original (usa los valores de :root) ----- */
+[data-tema="claro"] {
+    /* sin cambios */
+}
+
+/* ----- Oscuro ----- */
+[data-tema="oscuro"] {
+    --menu-fondo: #0F1612;
+    --menu-texto: #C9D6BC;
+    --menu-activo-fondo: #2B3D30;
+    --menu-activo-texto: #F3F6EC;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-borde: #26352B;
+    --bosque: #DCE6CB;
+    --musgo: #A7C08C;
+    --salvia: #6B7F5C;
+    --salvia-clara: #2B3D30;
+    --neblina: #141C17;
+    --blanco: #1D2821;
+    --borde: #33453A;
+    --texto-suave: #A9B8A0;
+    --guaria: #C9A3D6;
+    color-scheme: dark;
+}
+
+/* ----- Guaria morada ----- */
+[data-tema="guaria"] {
+    --menu-fondo: #3A1D45;
+    --menu-texto: #EAD9F0;
+    --menu-activo-fondo: #7B3F8C;
+    --menu-activo-texto: #FFFFFF;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-borde: #3A1D45;
+    --bosque: #3A1D45;
+    --musgo: #7B3F8C;
+    --salvia: #C9A3D6;
+    --salvia-clara: #EFE3F3;
+    --neblina: #F6F1F7;
+    --borde: #E2D3E8;
+    --texto-suave: #5C4766;
+    --guaria: #9B4FB0;
+}
+
+/* ----- Perezoso ----- */
+[data-tema="perezoso"] {
+    --menu-fondo: #3B2A20;
+    --menu-texto: #F1E7D3;
+    --menu-activo-fondo: #6E4F38;
+    --menu-activo-texto: #FFFFFF;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-borde: #3B2A20;
+    --bosque: #3B2A20;
+    --musgo: #6E4F38;
+    --salvia: #C9A98A;
+    --salvia-clara: #EFE3D2;
+    --neblina: #F7F1E8;
+    --borde: #E3D5C2;
+    --texto-suave: #6B5848;
+    --guaria: #B5541F;
+}
+
+/* ----- Tucán ----- */
+[data-tema="tucan"] {
+    --menu-fondo: #161616;
+    --menu-texto: #F5E9C8;
+    --menu-activo-fondo: #2E4A2B;
+    --menu-activo-texto: #FFF6E0;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-borde: #161616;
+    --bosque: #161616;
+    --musgo: #2E4A2B;
+    --salvia: #E8A33D;
+    --salvia-clara: #FCEBC4;
+    --neblina: #FBF6EA;
+    --borde: #E8DFC8;
+    --texto-suave: #4D4A42;
+    --guaria: #C2410C;
+}
+
+/* ----- Carreta ----- */
+[data-tema="carreta"] {
+    --menu-fondo: #8E1C17;
+    --menu-texto: #FFF1D6;
+    --menu-activo-fondo: #B3261E;
+    --menu-activo-texto: #FFFFFF;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-borde: #8E1C17;
+    --bosque: #8E1C17;
+    --musgo: #B3261E;
+    --salvia: #E8B84A;
+    --salvia-clara: #F8E3C0;
+    --neblina: #FFF8EC;
+    --borde: #F0DDBF;
+    --texto-suave: #6E3A33;
+    --guaria: #1F5FAD;
+}
+
+/* ----- Morpho ----- */
+[data-tema="morpho"] {
+    --menu-fondo: #0B2A5B;
+    --menu-texto: #D6E6FF;
+    --menu-activo-fondo: #1E64C8;
+    --menu-activo-texto: #FFFFFF;
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    --menu-borde: #0B2A5B;
+    --bosque: #0B2A5B;
+    --musgo: #1E64C8;
+    --salvia: #8FB8EE;
+    --salvia-clara: #DCE8FA;
+    --neblina: #F0F5FC;
+    --borde: #D3E0F2;
+    --texto-suave: #44597A;
+    --guaria: #1E88FF;
+}
+
+body[data-tema="oscuro"] {
+    color: var(--bosque);
+}
+
+/* =====================================================================
+   PANTALLA "MODO DE LA APP"
+   ===================================================================== */
+.enlace-modo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 64px;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    color: var(--bosque);
+}
+
+    .enlace-modo > .ti:first-child {
+        font-size: 24px;
+        color: var(--musgo);
+    }
+
+    .enlace-modo span {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .enlace-modo small {
+        color: var(--texto-suave);
+    }
+
+.modo-intro {
+    color: var(--texto-suave);
+    margin-bottom: 20px;
+}
+
+.modo-mensaje {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--salvia-clara);
+    color: var(--bosque);
+    font-weight: 600;
+}
+
+.modo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    border: 0;
+    margin: 0 0 24px;
+    padding: 0;
+}
+
+.modo-tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 20px;
+    background: var(--blanco);
+    border: 2px solid var(--borde);
+    cursor: pointer;
+}
+
+    .modo-tarjeta:has(input:checked) {
+        border-color: var(--bosque);
+        box-shadow: 0 0 0 3px var(--salvia-clara);
+    }
+
+    .modo-tarjeta:has(input:focus-visible) {
+        outline: 3px solid var(--musgo);
+        outline-offset: 2px;
+    }
+
+.modo-vista {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 170px;
+    border-radius: 14px;
+    padding: 12px;
+}
+
+    .modo-vista .logo-svg {
+        width: auto;
+        max-width: 150px;
+        height: 100%;
+    }
+
+.modo-pie {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+    .modo-pie input {
+        width: 20px;
+        height: 20px;
+        margin-top: 2px;
+        accent-color: var(--bosque);
+        flex-shrink: 0;
+    }
+
+.modo-textos {
+    display: flex;
+    flex-direction: column;
+}
+
+    .modo-textos strong {
+        font-family: var(--fuente-titulos);
+        font-size: 18px;
+    }
+
+    .modo-textos small {
+        color: var(--texto-suave);
+    }
+
+.visualmente-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}

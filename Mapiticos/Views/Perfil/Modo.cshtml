@@ -1,0 +1,51 @@
+﻿@model Mapiticos.Models.ViewModels.ModoViewModel
+@{
+    ViewData["Title"] = "Modo de la app";
+}
+
+<div class="editar-perfil">
+    <header class="editar-encabezado">
+        <a asp-action="Editar" class="boton-icono" aria-label="Volver a editar perfil">
+            <i class="ti ti-arrow-left"></i>
+        </a>
+        <h1>Modo de la app</h1>
+    </header>
+
+    @if (TempData["Mensaje"] is string mensaje)
+    {
+        <p class="modo-mensaje" role="status">@mensaje</p>
+    }
+
+    <p class="modo-intro">Elegí cómo querés ver Mapiticos. El logo, el menú y los botones cambian con el modo.</p>
+
+    <form asp-action="Modo" method="post">
+        <div asp-validation-summary="ModelOnly" class="resumen-errores"></div>
+
+        <fieldset class="modo-grid">
+            <legend class="visualmente-oculto">Modo</legend>
+
+            @foreach (var tema in Model.Temas)
+            {
+                var id = $"modo-{tema.Clave}";
+                <label for="@id" class="modo-tarjeta">
+                    <span class="modo-vista" style="background: @tema.ColorMenu">
+                        <partial name="_Logo" model="tema.Clave" />
+                    </span>
+                    <span class="modo-pie">
+                        <input type="radio" id="@id" name="temaSeleccionado" value="@tema.Clave"
+                               checked="@(tema.Clave == Model.TemaSeleccionado)" />
+                        <span class="modo-textos">
+                            <strong>@tema.Nombre</strong>
+                            <small>@tema.Descripcion</small>
+                        </span>
+                    </span>
+                </label>
+            }
+        </fieldset>
+
+        <div class="formulario-acciones">
+            <a asp-action="Editar" class="boton-secundario">Cancelar</a>
+            <button type="submit" class="boton-principal">Guardar modo</button>
+        </div>
+    </form>
+</div>

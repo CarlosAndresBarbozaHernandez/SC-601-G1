@@ -12,6 +12,15 @@
         <h1>Editar perfil</h1>
     </header>
 
+    <a asp-action="Modo" class="enlace-modo">
+        <i class="ti ti-palette" aria-hidden="true"></i>
+        <span>
+            <strong>Modo de la app</strong>
+            <small>Colores y logo: Bosque, Oscuro, Perezoso…</small>
+        </span>
+        <i class="ti ti-chevron-right" aria-hidden="true"></i>
+    </a>
+
     <form asp-action="Editar" method="post" class="formulario">
         <div asp-validation-summary="ModelOnly" class="resumen-errores"></div>
 

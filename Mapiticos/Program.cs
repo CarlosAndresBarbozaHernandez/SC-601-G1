@@ -41,7 +41,11 @@ builder.Services.AddScoped<IAmigosRepositorio, AmigosRepositorio>();
 builder.Services.AddScoped<INotificacionRepositorio, NotificacionRepositorio>();
 
 // Servicios
+// Servicios
 builder.Services.AddScoped<IAlmacenFotos, AlmacenFotosLocal>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITemaServicio, TemaServicio>();
+
 
 var app = builder.Build();
 

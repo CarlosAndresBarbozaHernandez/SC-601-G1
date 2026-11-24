@@ -6,7 +6,7 @@
 <div class="landing">
 
     <header class="landing-barra">
-        <img src="~/img/logo.png" alt="Mapiticos" class="landing-barra-logo" />
+        <div class="landing-barra-logo">@await Html.PartialAsync("_Logo", "claro")</div>
         <a asp-area="Identity" asp-page="/Account/Login" class="boton-secundario boton-pequeno">Iniciar sesión</a>
     </header>
 
@@ -30,7 +30,7 @@
                 <a href="#funciones" class="boton-secundario">Ver qué podés hacer</a>
             </div>
         </div>
-        <img src="~/img/logo.png" alt="" class="hero-logo" />
+        <div class="hero-logo hero-logo-panel">@await Html.PartialAsync("_Logo", "bosque")</div>
     </section>
 
     <!-- Funciones -->

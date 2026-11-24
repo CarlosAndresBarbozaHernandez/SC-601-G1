@@ -2,6 +2,7 @@
 using Mapiticos.Filtros;
 using Mapiticos.Models.ViewModels;
 using Mapiticos.Repositorios;
+using Mapiticos.Servicios;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mapiticos.Controllers
@@ -9,10 +10,12 @@ namespace Mapiticos.Controllers
     public class PerfilController : Controller
     {
         private readonly IPerfilRepositorio _perfilRepositorio;
+        private readonly ITemaServicio _temaServicio;
 
-        public PerfilController(IPerfilRepositorio perfilRepositorio)
+        public PerfilController(IPerfilRepositorio perfilRepositorio, ITemaServicio temaServicio)
         {
             _perfilRepositorio = perfilRepositorio;
+            _temaServicio = temaServicio;
         }
 
         private string? UsuarioActualId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -119,6 +122,33 @@ namespace Mapiticos.Controllers
             }
 
             return RedirectToAction("Index", "Feed");
+        }
+
+        // ===== Modo (tema) de la app =====
+        [HttpGet]
+        public async Task<IActionResult> Modo()
+        {
+            var modelo = new ModoViewModel
+            {
+                TemaSeleccionado = await _temaServicio.ObtenerTemaActualAsync()
+            };
+            return View(modelo);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Modo(string temaSeleccionado)
+        {
+            if (!CatalogoTemas.Existe(temaSeleccionado))
+            {
+                ModelState.AddModelError(string.Empty, "Ese modo no existe. Elegí uno de la lista.");
+                return View(new ModoViewModel { TemaSeleccionado = await _temaServicio.ObtenerTemaActualAsync() });
+            }
+
+            await _temaServicio.GuardarTemaAsync(temaSeleccionado);
+
+            TempData["Mensaje"] = $"¡Listo! Ahora usás el modo {CatalogoTemas.Obtener(temaSeleccionado).Nombre}.";
+            return RedirectToAction(nameof(Modo));
         }
     }
 }
